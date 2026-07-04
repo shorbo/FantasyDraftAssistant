@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/shorbo/.cache/**)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Read(//Users/shorbo/Library/Caches/ms-playwright/**)",
+      "Bash(npm install *)",
+      "Bash(npx playwright *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5199)",
+      "Bash(node /private/tmp/claude-501/-Users-shorbo-ClaudeCode-FantasyDraftAssistant/524e99cb-723b-4d1f-b991-c087235692e9/scratchpad/drive.mjs)",
+      "Bash(python3 -c \"import playwright\")",
+      "Read(//private/tmp/**)",
+      "Bash(npm init *)"
+    ]
+  }
+}
