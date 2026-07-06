@@ -1,0 +1,12 @@
+{
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/CSV.swift" : {
+    "abi-baseline-json" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant.abi.json",
+    "const-values" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant-primary.swiftconstvalues",
+    "dependencies" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant-primary.d",
+    "diagnostics" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant-primary.dia",
+    "objc-header" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant-Swift.h",
+    "swiftdoc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant.swiftdoc",
+    "swiftmodule" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant.swiftmodule",
+    "swiftsourceinfo" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/arm64/FantasyFootballAssistant.swiftsourceinfo"
+  }
+}

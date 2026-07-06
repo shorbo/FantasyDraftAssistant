@@ -91,6 +91,75 @@ select:focus {
   font-size: 22px;
 }
 
+.setup .subtitle {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: -12px;
+}
+
+.connect-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.connect-row input[type='text'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.draft-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.draft-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  padding: 8px 10px;
+}
+
+.draft-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.draft-option .draft-name {
+  font-weight: 600;
+}
+
+.draft-option .draft-meta {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.draft-summary {
+  background: rgba(62, 207, 142, 0.08);
+  border: 1px solid rgba(62, 207, 142, 0.45);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.draft-summary .draft-name {
+  font-weight: 600;
+  color: var(--green);
+}
+
+.draft-summary .hint,
+.draft-summary .connect-row {
+  color: var(--text-dim);
+  font-size: 12.5px;
+}
+
 .setup .field {
   display: flex;
   flex-direction: column;
@@ -218,10 +287,18 @@ select:focus {
   border-color: var(--green);
 }
 
-.recent-pick button {
-  padding: 0 5px;
-  font-size: 11px;
-  line-height: 18px;
+.sync-badge {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.sync-badge.live {
+  color: var(--green);
+}
+
+.sync-badge.error {
+  color: var(--amber);
 }
 
 .panels {
@@ -323,7 +400,6 @@ select:focus {
   gap: 10px;
   padding: 7px 8px;
   border-radius: 6px;
-  cursor: pointer;
 }
 
 .player-row:hover {
@@ -333,7 +409,6 @@ select:focus {
 .player-row.drafted {
   opacity: 0.4;
   text-decoration: line-through;
-  cursor: default;
 }
 
 .player-row .rank {
@@ -465,11 +540,6 @@ select:focus {
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 8px;
-  cursor: pointer;
-}
-
-.rec-card:hover {
-  border-color: var(--accent);
 }
 
 .rec-card .rec-top {

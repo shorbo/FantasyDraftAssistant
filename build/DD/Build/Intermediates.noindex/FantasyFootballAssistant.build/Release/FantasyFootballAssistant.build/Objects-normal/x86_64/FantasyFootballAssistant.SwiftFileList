@@ -1,0 +1,17 @@
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/CSV.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/DraftGrader.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/DraftMath.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/ViewModels/DraftSession.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Views/DraftView.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/App/FantasyFootballAssistantApp.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Views/LeaderboardView.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/Models.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/NameMatching.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/Projection.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/ProjectionsCSV.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/RankingsCSV.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/Recommender.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/SessionStore.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Views/SetupView.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/SleeperAPI.swift
+/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/SleeperModels.swift

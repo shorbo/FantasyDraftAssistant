@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 
 const TABS = ['All', 'QB', 'RB', 'WR', 'TE', 'K', 'DST'];
 
-export default function PlayerList({ players, draftedIds, onDraft, disabled }) {
+// Read-only board: picks sync in from Sleeper, so rows just report state.
+export default function PlayerList({ players, draftedIds }) {
   const [tab, setTab] = useState('All');
   const [query, setQuery] = useState('');
   const [hideDrafted, setHideDrafted] = useState(false);
@@ -54,12 +55,7 @@ export default function PlayerList({ players, draftedIds, onDraft, disabled }) {
         {visible.map((p) => {
           const drafted = draftedIds.has(p.id);
           return (
-            <div
-              key={p.id}
-              className={`player-row${drafted ? ' drafted' : ''}`}
-              onClick={() => !drafted && !disabled && onDraft(p.id)}
-              title={drafted || disabled ? undefined : 'Click to mark as drafted'}
-            >
+            <div key={p.id} className={`player-row${drafted ? ' drafted' : ''}`}>
               <span className="rank">{p.rank}</span>
               <span className={`pos-badge pos-${p.pos}`}>
                 {p.pos}

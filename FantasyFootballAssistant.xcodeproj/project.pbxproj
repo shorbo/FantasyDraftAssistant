@@ -1,0 +1,517 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0769C013C5E1C4D06D71CE6A /* SleeperModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0E94A3AC4EDE78150DB591 /* SleeperModels.swift */; };
+		0F9AC18FC3BA202BE763E5A0 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65988F369494572AF075CA82 /* SetupView.swift */; };
+		2953CA98D7644FD2FADAD673 /* DraftMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD0CB5F20FDFB373A0358B8 /* DraftMath.swift */; };
+		2D92145272E718D77DA4B90D /* Recommender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3586A10D79AAAE4D6CD0C9 /* Recommender.swift */; };
+		561AF04EFE41BC69DD752513 /* DraftGrader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610835A20B65432346F0B285 /* DraftGrader.swift */; };
+		5EA74C3B6B806CE7EC46AD93 /* DraftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58194B5C269157CD0E45CCA7 /* DraftView.swift */; };
+		6E1E729890C6934D195E989A /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B7F0736D3C68209F27C1F74 /* SessionStore.swift */; };
+		6F3FAE088061E13F321ACF47 /* RankingsCSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B01EA080E6CB5CC42D5B90D /* RankingsCSV.swift */; };
+		7B5D8B86D4D067A7885EA5B8 /* Projection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316D60AA2F8EDA053DF47865 /* Projection.swift */; };
+		836C7402AB02CCA1DEC51971 /* FantasyFootballAssistantApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D7212BABF807B93B07E52AF /* FantasyFootballAssistantApp.swift */; };
+		8399A2F47470240D72B49C85 /* DraftLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C51896F2E96073E70223D9 /* DraftLogicTests.swift */; };
+		8CD207109D7B5042FBA5137E /* AILogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7939B92B4D54EF436160E086 /* AILogger.swift */; };
+		A1671069E38ADF820F96A2B1 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F5F6878074C7EE148296CC /* ChatView.swift */; };
+		B52D9DB997AE77BC91D99356 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440A56DFDCC9B9712F4833CD /* Models.swift */; };
+		BA09EA102E1306ACFA57B42E /* ProjectionsCSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BB45C94502BDCAA8037279 /* ProjectionsCSV.swift */; };
+		CD9D35E2B36C9FC3363F5942 /* OpenRouterAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51356A9666C3F6FEF943E74C /* OpenRouterAPI.swift */; };
+		CFC21863D16B1260450DDD8C /* SleeperAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497125A3E62E23D83B6F119B /* SleeperAPI.swift */; };
+		D057D243A787BD9A4298C387 /* NameMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5897FEA301F07D6CEEBC48B0 /* NameMatching.swift */; };
+		D80E1065ADED5FDB8B35C3F2 /* DraftAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46071B4BFFB12DA5029046C6 /* DraftAnalytics.swift */; };
+		DD5001E29215FEAD6F917258 /* CSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 401650863A63E13935AD5214 /* CSV.swift */; };
+		DF749AE38ED5EB8B535EDA35 /* AIAdvisor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7208AA45941621FD5CC47A77 /* AIAdvisor.swift */; };
+		F0449C1B553D83429AA922F4 /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B9D3C9802503FCD09B253EB /* LeaderboardView.swift */; };
+		F80090701D8EA3C22DB3A1BB /* DraftSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BDB3ADB45C8613D4286FA73 /* DraftSession.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		21E941DC1E5109AD28306AD9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 10BC696F5E2409679623EC60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3E9B715EA9FCC4ACC9D7AA69;
+			remoteInfo = FantasyFootballAssistant;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		15BB45C94502BDCAA8037279 /* ProjectionsCSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionsCSV.swift; sourceTree = "<group>"; };
+		1D7212BABF807B93B07E52AF /* FantasyFootballAssistantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FantasyFootballAssistantApp.swift; sourceTree = "<group>"; };
+		316D60AA2F8EDA053DF47865 /* Projection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Projection.swift; sourceTree = "<group>"; };
+		32F5F6878074C7EE148296CC /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		401650863A63E13935AD5214 /* CSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSV.swift; sourceTree = "<group>"; };
+		440A56DFDCC9B9712F4833CD /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		46071B4BFFB12DA5029046C6 /* DraftAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftAnalytics.swift; sourceTree = "<group>"; };
+		497125A3E62E23D83B6F119B /* SleeperAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleeperAPI.swift; sourceTree = "<group>"; };
+		4BDB3ADB45C8613D4286FA73 /* DraftSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftSession.swift; sourceTree = "<group>"; };
+		51356A9666C3F6FEF943E74C /* OpenRouterAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenRouterAPI.swift; sourceTree = "<group>"; };
+		58194B5C269157CD0E45CCA7 /* DraftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftView.swift; sourceTree = "<group>"; };
+		5897FEA301F07D6CEEBC48B0 /* NameMatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameMatching.swift; sourceTree = "<group>"; };
+		5A0E94A3AC4EDE78150DB591 /* SleeperModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleeperModels.swift; sourceTree = "<group>"; };
+		5F3586A10D79AAAE4D6CD0C9 /* Recommender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recommender.swift; sourceTree = "<group>"; };
+		610835A20B65432346F0B285 /* DraftGrader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftGrader.swift; sourceTree = "<group>"; };
+		65988F369494572AF075CA82 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		676CFFC07D778E6D0939DFF9 /* FantasyFootballAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FantasyFootballAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6B9D3C9802503FCD09B253EB /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
+		7208AA45941621FD5CC47A77 /* AIAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAdvisor.swift; sourceTree = "<group>"; };
+		7939B92B4D54EF436160E086 /* AILogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AILogger.swift; sourceTree = "<group>"; };
+		7B01EA080E6CB5CC42D5B90D /* RankingsCSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RankingsCSV.swift; sourceTree = "<group>"; };
+		8B7F0736D3C68209F27C1F74 /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		BDD0CB5F20FDFB373A0358B8 /* DraftMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftMath.swift; sourceTree = "<group>"; };
+		C7C51896F2E96073E70223D9 /* DraftLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftLogicTests.swift; sourceTree = "<group>"; };
+		D211EBFD9779A3C08CFB8869 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D8A9A7F6F982B87B2A9A6B77 /* FantasyFootballAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FantasyFootballAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		31C0153A6C38FC1C362EE8ED /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1D7212BABF807B93B07E52AF /* FantasyFootballAssistantApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		377CD5FFBF93C6D2F55ACEA5 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				7208AA45941621FD5CC47A77 /* AIAdvisor.swift */,
+				7939B92B4D54EF436160E086 /* AILogger.swift */,
+				401650863A63E13935AD5214 /* CSV.swift */,
+				46071B4BFFB12DA5029046C6 /* DraftAnalytics.swift */,
+				610835A20B65432346F0B285 /* DraftGrader.swift */,
+				BDD0CB5F20FDFB373A0358B8 /* DraftMath.swift */,
+				5897FEA301F07D6CEEBC48B0 /* NameMatching.swift */,
+				51356A9666C3F6FEF943E74C /* OpenRouterAPI.swift */,
+				316D60AA2F8EDA053DF47865 /* Projection.swift */,
+				15BB45C94502BDCAA8037279 /* ProjectionsCSV.swift */,
+				7B01EA080E6CB5CC42D5B90D /* RankingsCSV.swift */,
+				5F3586A10D79AAAE4D6CD0C9 /* Recommender.swift */,
+				8B7F0736D3C68209F27C1F74 /* SessionStore.swift */,
+				497125A3E62E23D83B6F119B /* SleeperAPI.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		3CEC51056A8FD566A64E0E7D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				32F5F6878074C7EE148296CC /* ChatView.swift */,
+				58194B5C269157CD0E45CCA7 /* DraftView.swift */,
+				6B9D3C9802503FCD09B253EB /* LeaderboardView.swift */,
+				65988F369494572AF075CA82 /* SetupView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5033E16F30385C026EDF61E9 /* FantasyFootballAssistantTests */ = {
+			isa = PBXGroup;
+			children = (
+				C7C51896F2E96073E70223D9 /* DraftLogicTests.swift */,
+			);
+			path = FantasyFootballAssistantTests;
+			sourceTree = "<group>";
+		};
+		604870763523ADB084E93CD3 = {
+			isa = PBXGroup;
+			children = (
+				73C64C7E01A99D1B3CCE2B40 /* FantasyFootballAssistant */,
+				5033E16F30385C026EDF61E9 /* FantasyFootballAssistantTests */,
+				6D0ED9FA2ED1C267D3B60FF5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6D0ED9FA2ED1C267D3B60FF5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				676CFFC07D778E6D0939DFF9 /* FantasyFootballAssistant.app */,
+				D8A9A7F6F982B87B2A9A6B77 /* FantasyFootballAssistantTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		73C64C7E01A99D1B3CCE2B40 /* FantasyFootballAssistant */ = {
+			isa = PBXGroup;
+			children = (
+				D211EBFD9779A3C08CFB8869 /* Info.plist */,
+				31C0153A6C38FC1C362EE8ED /* App */,
+				A778A0C06E5DFDC37F77CD9E /* Models */,
+				377CD5FFBF93C6D2F55ACEA5 /* Services */,
+				7E995024107DD0E55904568F /* ViewModels */,
+				3CEC51056A8FD566A64E0E7D /* Views */,
+			);
+			path = FantasyFootballAssistant;
+			sourceTree = "<group>";
+		};
+		7E995024107DD0E55904568F /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				4BDB3ADB45C8613D4286FA73 /* DraftSession.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A778A0C06E5DFDC37F77CD9E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				440A56DFDCC9B9712F4833CD /* Models.swift */,
+				5A0E94A3AC4EDE78150DB591 /* SleeperModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3E9B715EA9FCC4ACC9D7AA69 /* FantasyFootballAssistant */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 68EBBC632317DE0D6FDD09DF /* Build configuration list for PBXNativeTarget "FantasyFootballAssistant" */;
+			buildPhases = (
+				C301CF6383A757B010AF6FB8 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FantasyFootballAssistant;
+			packageProductDependencies = (
+			);
+			productName = FantasyFootballAssistant;
+			productReference = 676CFFC07D778E6D0939DFF9 /* FantasyFootballAssistant.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7ECA5E77A92F468E5E64D022 /* FantasyFootballAssistantTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A2C4630F1B3953516020B302 /* Build configuration list for PBXNativeTarget "FantasyFootballAssistantTests" */;
+			buildPhases = (
+				B8BA7F2911FE7BFE9A3B7C07 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				68EF09F4348C52FD76E530D9 /* PBXTargetDependency */,
+			);
+			name = FantasyFootballAssistantTests;
+			packageProductDependencies = (
+			);
+			productName = FantasyFootballAssistantTests;
+			productReference = D8A9A7F6F982B87B2A9A6B77 /* FantasyFootballAssistantTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		10BC696F5E2409679623EC60 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					3E9B715EA9FCC4ACC9D7AA69 = {
+						ProvisioningStyle = Manual;
+					};
+					7ECA5E77A92F468E5E64D022 = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = BFD6A2FF9557F8ACEF4EB46A /* Build configuration list for PBXProject "FantasyFootballAssistant" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 604870763523ADB084E93CD3;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6D0ED9FA2ED1C267D3B60FF5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3E9B715EA9FCC4ACC9D7AA69 /* FantasyFootballAssistant */,
+				7ECA5E77A92F468E5E64D022 /* FantasyFootballAssistantTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B8BA7F2911FE7BFE9A3B7C07 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8399A2F47470240D72B49C85 /* DraftLogicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C301CF6383A757B010AF6FB8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DF749AE38ED5EB8B535EDA35 /* AIAdvisor.swift in Sources */,
+				8CD207109D7B5042FBA5137E /* AILogger.swift in Sources */,
+				DD5001E29215FEAD6F917258 /* CSV.swift in Sources */,
+				A1671069E38ADF820F96A2B1 /* ChatView.swift in Sources */,
+				D80E1065ADED5FDB8B35C3F2 /* DraftAnalytics.swift in Sources */,
+				561AF04EFE41BC69DD752513 /* DraftGrader.swift in Sources */,
+				2953CA98D7644FD2FADAD673 /* DraftMath.swift in Sources */,
+				F80090701D8EA3C22DB3A1BB /* DraftSession.swift in Sources */,
+				5EA74C3B6B806CE7EC46AD93 /* DraftView.swift in Sources */,
+				836C7402AB02CCA1DEC51971 /* FantasyFootballAssistantApp.swift in Sources */,
+				F0449C1B553D83429AA922F4 /* LeaderboardView.swift in Sources */,
+				B52D9DB997AE77BC91D99356 /* Models.swift in Sources */,
+				D057D243A787BD9A4298C387 /* NameMatching.swift in Sources */,
+				CD9D35E2B36C9FC3363F5942 /* OpenRouterAPI.swift in Sources */,
+				7B5D8B86D4D067A7885EA5B8 /* Projection.swift in Sources */,
+				BA09EA102E1306ACFA57B42E /* ProjectionsCSV.swift in Sources */,
+				6F3FAE088061E13F321ACF47 /* RankingsCSV.swift in Sources */,
+				2D92145272E718D77DA4B90D /* Recommender.swift in Sources */,
+				6E1E729890C6934D195E989A /* SessionStore.swift in Sources */,
+				0F9AC18FC3BA202BE763E5A0 /* SetupView.swift in Sources */,
+				CFC21863D16B1260450DDD8C /* SleeperAPI.swift in Sources */,
+				0769C013C5E1C4D06D71CE6A /* SleeperModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		68EF09F4348C52FD76E530D9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3E9B715EA9FCC4ACC9D7AA69 /* FantasyFootballAssistant */;
+			targetProxy = 21E941DC1E5109AD28306AD9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		35576EC88A78C76AD549F556 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		520ECFF8D4E89C073EA2F7BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = FantasyFootballAssistant/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shorbo.FantasyFootballAssistant;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		657990E0803788C164D15CB5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = FantasyFootballAssistant/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shorbo.FantasyFootballAssistant;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8954352CE80176DC7F78E215 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		B128AA72CAA866C1B16CDBC5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shorbo.FantasyFootballAssistantTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FantasyFootballAssistant.app/Contents/MacOS/FantasyFootballAssistant";
+			};
+			name = Debug;
+		};
+		BDA0A483FE031F7FF8758E6D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shorbo.FantasyFootballAssistantTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FantasyFootballAssistant.app/Contents/MacOS/FantasyFootballAssistant";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		68EBBC632317DE0D6FDD09DF /* Build configuration list for PBXNativeTarget "FantasyFootballAssistant" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				520ECFF8D4E89C073EA2F7BB /* Debug */,
+				657990E0803788C164D15CB5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A2C4630F1B3953516020B302 /* Build configuration list for PBXNativeTarget "FantasyFootballAssistantTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B128AA72CAA866C1B16CDBC5 /* Debug */,
+				BDA0A483FE031F7FF8758E6D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BFD6A2FF9557F8ACEF4EB46A /* Build configuration list for PBXProject "FantasyFootballAssistant" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35576EC88A78C76AD549F556 /* Debug */,
+				8954352CE80176DC7F78E215 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 10BC696F5E2409679623EC60 /* Project object */;
+}

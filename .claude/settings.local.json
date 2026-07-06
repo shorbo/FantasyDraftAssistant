@@ -10,7 +10,19 @@
       "Bash(node /private/tmp/claude-501/-Users-shorbo-ClaudeCode-FantasyDraftAssistant/524e99cb-723b-4d1f-b991-c087235692e9/scratchpad/drive.mjs)",
       "Bash(python3 -c \"import playwright\")",
       "Read(//private/tmp/**)",
-      "Bash(npm init *)"
+      "Bash(npm init *)",
+      "WebFetch(domain:docs.sleeper.com)",
+      "Bash(node test-sleeper.mjs)",
+      "Bash(npm run *)",
+      "Bash(swift --version)",
+      "Bash(xcodebuild -version)",
+      "Bash(sw_vers)",
+      "Bash(xcodegen generate *)",
+      "Bash(xcodebuild -project FantasyFootballAssistant.xcodeproj -scheme FantasyFootballAssistant -configuration Debug build)",
+      "Bash(xcodebuild -project FantasyFootballAssistant.xcodeproj -scheme FantasyFootballAssistant test)",
+      "Bash(swiftc -o harness main.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/Models.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/SleeperModels.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/RankingsCSV.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/NameMatching.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/SleeperAPI.swift)",
+      "Bash(./harness)",
+      "Bash(swiftc -enable-bare-slash-regex -o harness main.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/Models.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/SleeperModels.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/RankingsCSV.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/NameMatching.swift /Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/SleeperAPI.swift)"
     ]
   }
 }

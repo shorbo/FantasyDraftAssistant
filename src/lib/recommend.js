@@ -1,15 +1,23 @@
-import { assignRoster, roundForPick, FLEX_POSITIONS } from './draft.js';
+import { assignRoster, roundForPick } from './draft.js';
 
 // Deterministic best-available-by-need recommendations. This renders
-// instantly and is the panel's floor when the Claude API is slow or down.
-export function localRecommendations(available, myPlayers, currentPick) {
-  const round = roundForPick(currentPick);
-  const { starters } = assignRoster(myPlayers);
+// instantly and is the panel's floor when the AI is slow or down.
+export function localRecommendations(available, myPlayers, currentPick, config) {
+  const round = roundForPick(currentPick, config.teams);
+  const { starters } = assignRoster(myPlayers, config.slots);
   const openPositions = new Set(
-    starters.filter((s) => !s.player && s.key !== 'FLEX').flatMap((s) => s.positions)
+    starters
+      .filter((s) => !s.player && s.positions.length === 1)
+      .flatMap((s) => s.positions)
   );
-  const flexOpen = starters.some((s) => s.key === 'FLEX' && !s.player);
+  const openFlexPositions = new Set(
+    starters
+      .filter((s) => !s.player && s.positions.length > 1)
+      .flatMap((s) => s.positions)
+  );
   const lastInTier = tierBreakSet(available);
+  const lateRounds = config.rounds - 2; // when K/DST become fair game
+  const scarcityRound = Math.max(2, config.rounds - 7); // when open QB/TE turns urgent
 
   const scored = available.map((p) => {
     let score = p.rank;
@@ -18,14 +26,14 @@ export function localRecommendations(available, myPlayers, currentPick) {
     if (openPositions.has(p.pos) && p.pos !== 'K' && p.pos !== 'DST') {
       score -= 12;
       reason = `Fills your open ${p.pos} slot as the best one available.`;
-    } else if (flexOpen && FLEX_POSITIONS.includes(p.pos)) {
+    } else if (openFlexPositions.has(p.pos)) {
       score -= 4;
-      reason = `Best available for your open FLEX slot.`;
+      reason = `Best available for your open flex slot.`;
     }
 
     // Don't burn early picks on K/DST; make them urgent at the end.
     if (p.pos === 'K' || p.pos === 'DST') {
-      if (round < 13) score += 500;
+      if (round < lateRounds) score += 500;
       else if (openPositions.has(p.pos)) {
         score -= 100;
         reason = `Time to lock in your ${p.pos} — top option still on the board.`;
@@ -33,7 +41,7 @@ export function localRecommendations(available, myPlayers, currentPick) {
     }
 
     // Positional scarcity: don't leave QB/TE open into the late-middle rounds.
-    if ((p.pos === 'QB' || p.pos === 'TE') && openPositions.has(p.pos) && round >= 8) {
+    if ((p.pos === 'QB' || p.pos === 'TE') && openPositions.has(p.pos) && round >= scarcityRound) {
       score -= 15;
       reason = `The ${p.pos} pool thins out fast — don't wait much longer.`;
     }

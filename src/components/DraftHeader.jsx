@@ -1,31 +1,37 @@
-import { TOTAL_PICKS, TEAMS, roundForPick } from '../lib/draft.js';
+import { roundForPick } from '../lib/draft.js';
 
 export default function DraftHeader({
   currentPick,
-  userSlot,
+  config,
   teamNames,
   nextUserPickNum,
   recentPicks,
-  onUndo,
-  onTogglePickOwner,
   complete,
+  draftStatus,
+  syncError,
+  lastSync,
+  onLeave,
 }) {
   function teamName(slot) {
     return teamNames?.[slot - 1] || `Team ${slot}`;
   }
-  const round = roundForPick(Math.min(currentPick, TOTAL_PICKS));
-  const pickInRound = ((Math.min(currentPick, TOTAL_PICKS) - 1) % TEAMS) + 1;
+  const clamped = Math.min(currentPick, config.totalPicks);
+  const round = roundForPick(clamped, config.teams);
+  const pickInRound = ((clamped - 1) % config.teams) + 1;
 
   return (
     <header className="draft-header">
       {complete ? (
         <span className="pick-status">🏁 Draft complete</span>
+      ) : draftStatus === 'pre_draft' ? (
+        <span className="pick-status">⏳ Waiting for the draft to start…</span>
       ) : (
         <>
           <span className="pick-status">
+            {draftStatus === 'paused' && '⏸ '}
             Round {round} · Pick {pickInRound} (overall #{currentPick})
           </span>
-          {recentPicks.onClockSlot === userSlot ? (
+          {recentPicks.onClockSlot === config.userSlot ? (
             <span className="on-clock you">🟢 You're on the clock!</span>
           ) : (
             <span className="on-clock">
@@ -43,22 +49,27 @@ export default function DraftHeader({
       {recentPicks.items.length > 0 && (
         <div className="recent-picks">
           <span>Last:</span>
-          {recentPicks.items.map(({ pick, player, isMine }) => (
-            <span key={pick.pickNumber} className={`recent-pick${isMine ? ' mine' : ''}`}>
-              #{pick.pickNumber} {player.name}
-              <button
-                title={isMine ? 'Reassign to another team' : 'Reassign to my roster'}
-                onClick={() => onTogglePickOwner(pick.pickNumber)}
-              >
-                {isMine ? 'mine ✕' : '→ mine'}
-              </button>
+          {recentPicks.items.map(({ pickNumber, player, isMine }) => (
+            <span key={pickNumber} className={`recent-pick${isMine ? ' mine' : ''}`}>
+              #{pickNumber} {player.name}
             </span>
           ))}
         </div>
       )}
 
-      <button onClick={onUndo} disabled={recentPicks.items.length === 0}>
-        ↩ Undo pick
+      {syncError ? (
+        <span className="sync-badge error" title={syncError}>
+          ⚠ sync error — retrying
+        </span>
+      ) : (
+        <span className={`sync-badge${complete ? '' : ' live'}`} title={config.name}>
+          {complete ? '✓ Sleeper' : '● Sleeper'}
+          {!complete && lastSync ? ' live' : ''}
+        </span>
+      )}
+
+      <button onClick={onLeave} title="Back to setup — you can rejoin anytime">
+        ✕ Leave
       </button>
     </header>
   );

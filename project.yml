@@ -1,0 +1,46 @@
+name: FantasyFootballAssistant
+options:
+  bundleIdPrefix: com.shorbo
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_HARDENED_RUNTIME: NO
+targets:
+  FantasyFootballAssistant:
+    type: application
+    platform: macOS
+    sources:
+      - FantasyFootballAssistant
+    info:
+      path: FantasyFootballAssistant/Info.plist
+      properties:
+        LSApplicationCategoryType: public.app-category.sports
+        NSMainStoryboardFile: ""
+        NSPrincipalClass: NSApplication
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.shorbo.FantasyFootballAssistant
+  FantasyFootballAssistantTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - FantasyFootballAssistantTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: FantasyFootballAssistant
+schemes:
+  FantasyFootballAssistant:
+    build:
+      targets:
+        FantasyFootballAssistant: all
+    run:
+      config: Debug
+    test:
+      targets:
+        - FantasyFootballAssistantTests

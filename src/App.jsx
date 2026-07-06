@@ -5,17 +5,19 @@ import PlayerList from './components/PlayerList.jsx';
 import RosterPanel from './components/RosterPanel.jsx';
 import RecommendationsPanel from './components/RecommendationsPanel.jsx';
 import {
-  TOTAL_PICKS,
-  teamSlotForPick,
+  buildDraftConfig,
+  slotForPick,
   nextUserPick,
   assignRoster,
   rosterGaps,
   byeWarnings,
   roundForPick,
 } from './lib/draft.js';
+import { getDraft, buildPickResolver } from './lib/sleeper.js';
+import { useSleeperDraft } from './hooks/useSleeperDraft.js';
 import { localRecommendations } from './lib/recommend.js';
 import { fetchAiRecommendations, DEFAULT_MODEL } from './lib/llm.js';
-import { saveDraft, loadDraft, clearDraft } from './lib/storage.js';
+import { saveSession, loadSession, clearSession } from './lib/storage.js';
 
 const ENV_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || '';
 const AI_TRIGGER_WINDOW = 2; // fetch AI recs when the user's pick is this close
@@ -23,77 +25,95 @@ const AI_TRIGGER_WINDOW = 2; // fetch AI recs when the user's pick is this close
 const idleAi = { status: 'idle', recs: null, forPick: null, error: null };
 
 export default function App() {
-  const [session, setSession] = useState(null); // { userSlot, players, apiKey, model, teamNames }
-  const [picks, setPicks] = useState([]);
-  const [savedDraft, setSavedDraft] = useState(() => loadDraft());
+  // session: { players, draft, config, userId, apiKey, model, teamNames }
+  const [session, setSession] = useState(null);
+  const [savedSession, setSavedSession] = useState(() => loadSession());
+  const [resuming, setResuming] = useState(false);
+  const [resumeError, setResumeError] = useState(null);
   const [aiState, setAiState] = useState(idleAi);
   const aiRequestRef = useRef(0);
   const abortRef = useRef(null);
 
-  const currentPick = picks.length + 1;
-  const complete = picks.length >= TOTAL_PICKS;
-
-  const playersById = useMemo(() => {
-    const map = new Map();
-    for (const p of session?.players || []) map.set(p.id, p);
-    return map;
-  }, [session]);
-
-  const draftedIds = useMemo(() => new Set(picks.map((p) => p.playerId)), [picks]);
-
-  const myPlayers = useMemo(
-    () =>
-      picks
-        .filter((p) => p.teamSlot === session?.userSlot)
-        .map((p) => playersById.get(p.playerId))
-        .filter(Boolean),
-    [picks, session, playersById]
+  const { draft: liveDraft, picks: rawPicks, error: syncError, lastSync } = useSleeperDraft(
+    session?.draft
   );
 
+  const config = session?.config || null;
+  const draftStatus = liveDraft?.status || 'pre_draft';
+
+  const resolvePick = useMemo(() => buildPickResolver(session?.players || []), [session]);
+
+  // Sleeper picks → view picks. draft_slot (not picked_by) decides ownership
+  // so autopicked players still land on the right roster.
+  const picks = useMemo(
+    () =>
+      (rawPicks || [])
+        .map((pk) => ({
+          pickNumber: pk.pick_no,
+          slot: pk.draft_slot,
+          player: resolvePick(pk),
+          isMine: pk.draft_slot === config?.userSlot,
+        }))
+        .sort((a, b) => a.pickNumber - b.pickNumber),
+    [rawPicks, resolvePick, config]
+  );
+
+  const currentPick = picks.length + 1;
+  const complete =
+    draftStatus === 'complete' || (config ? picks.length >= config.totalPicks : false);
+  const clampedPick = config ? Math.min(currentPick, config.totalPicks) : 1;
+
+  const draftedIds = useMemo(() => new Set(picks.map((p) => p.player.id)), [picks]);
+  const myPlayers = useMemo(() => picks.filter((p) => p.isMine).map((p) => p.player), [picks]);
   const available = useMemo(
     () => (session?.players || []).filter((p) => !draftedIds.has(p.id)),
     [session, draftedIds]
   );
 
-  const { starters, bench } = useMemo(() => assignRoster(myPlayers), [myPlayers]);
+  const { starters, bench } = useMemo(
+    () => (config ? assignRoster(myPlayers, config.slots) : { starters: [], bench: [] }),
+    [myPlayers, config]
+  );
   const gaps = useMemo(
-    () => rosterGaps(starters, roundForPick(Math.min(currentPick, TOTAL_PICKS))),
-    [starters, currentPick]
+    () => (config ? rosterGaps(starters, roundForPick(clampedPick, config.teams), config.rounds) : []),
+    [starters, clampedPick, config]
   );
   const byes = useMemo(() => byeWarnings(starters), [starters]);
 
   const fallbackRecs = useMemo(
-    () => localRecommendations(available, myPlayers, Math.min(currentPick, TOTAL_PICKS)),
-    [available, myPlayers, currentPick]
+    () => (config ? localRecommendations(available, myPlayers, clampedPick, config) : []),
+    [available, myPlayers, clampedPick, config]
   );
 
   // AI recs are only shown for the pick they were generated for; anything
   // else falls back to the local engine so the panel is never stale or empty.
   const displayedRecs = useMemo(() => {
     if (aiState.status !== 'ready' || aiState.forPick !== currentPick) return fallbackRecs;
+    const availableById = new Map(available.map((p) => [p.id, p]));
     const aiRecs = aiState.recs
-      .map((r) => ({ player: playersById.get(r.id), reason: r.reason, tierBreak: false }))
-      .filter((r) => r.player && !draftedIds.has(r.player.id));
+      .map((r) => ({ player: availableById.get(r.id), reason: r.reason, tierBreak: false }))
+      .filter((r) => r.player);
     if (aiRecs.length === 0) return fallbackRecs;
     for (const fb of fallbackRecs) {
       if (aiRecs.length >= 5) break;
       if (!aiRecs.some((r) => r.player.id === fb.player.id)) aiRecs.push(fb);
     }
     return aiRecs.slice(0, 5);
-  }, [aiState, currentPick, fallbackRecs, playersById, draftedIds]);
+  }, [aiState, currentPick, fallbackRecs, available]);
 
-  const nextUp = session ? nextUserPick(currentPick, session.userSlot) : null;
+  const nextUp = config ? nextUserPick(currentPick, config) : null;
 
   useEffect(() => {
     if (session)
-      saveDraft({
-        userSlot: session.userSlot,
+      saveSession({
+        draftId: session.config.draftId,
+        draftName: session.config.name,
+        userId: session.userId,
         players: session.players,
-        picks,
         model: session.model,
         teamNames: session.teamNames,
       });
-  }, [session, picks]);
+  }, [session]);
 
   function triggerAi() {
     if (!session?.apiKey || complete || available.length === 0) return;
@@ -109,7 +129,7 @@ export default function App() {
       available,
       myPlayers,
       currentPick,
-      userSlot: session.userSlot,
+      config,
       signal: controller.signal,
     })
       .then((recs) => {
@@ -122,70 +142,69 @@ export default function App() {
       });
   }
 
-  // Auto-trigger when the user's next pick is close.
+  // Auto-trigger when the draft is live and the user's next pick is close.
   useEffect(() => {
     if (!session?.apiKey || complete || nextUp === null) return;
+    if (draftStatus !== 'drafting') return;
     if (nextUp - currentPick > AI_TRIGGER_WINDOW) return;
     if (aiState.forPick === currentPick && aiState.status !== 'error') return;
     triggerAi();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPick, session, complete]);
+  }, [currentPick, session, complete, draftStatus]);
 
-  function handleStart({ players, userSlot, apiKey, model, teamNames }) {
-    clearDraft();
-    setSavedDraft(null);
-    setPicks([]);
+  function handleStart({ players, draft, config: newConfig, userId, apiKey, model, teamNames }) {
+    clearSession();
+    setSavedSession(null);
     setAiState(idleAi);
-    setSession({ players, userSlot, apiKey, model, teamNames });
+    setSession({ players, draft, config: newConfig, userId, apiKey, model, teamNames });
   }
 
-  function handleResume() {
-    if (!savedDraft) return;
-    setPicks(savedDraft.picks);
-    setSession({
-      players: savedDraft.players,
-      userSlot: savedDraft.userSlot,
-      apiKey: ENV_API_KEY,
-      model: savedDraft.model || DEFAULT_MODEL,
-      teamNames: savedDraft.teamNames || Array.from({ length: 10 }, (_, i) => `Team ${i + 1}`),
-    });
-    setSavedDraft(null);
+  async function handleResume() {
+    if (!savedSession || resuming) return;
+    setResuming(true);
+    setResumeError(null);
+    try {
+      const draft = await getDraft(savedSession.draftId);
+      if (!draft) throw new Error('That draft no longer exists on Sleeper.');
+      const resumedConfig = buildDraftConfig(draft, savedSession.userId);
+      setAiState(idleAi);
+      setSession({
+        players: savedSession.players,
+        draft,
+        config: resumedConfig,
+        userId: savedSession.userId,
+        apiKey: ENV_API_KEY,
+        model: savedSession.model || DEFAULT_MODEL,
+        teamNames: savedSession.teamNames || [],
+      });
+      setSavedSession(null);
+    } catch (err) {
+      setResumeError(String(err.message || err));
+    } finally {
+      setResuming(false);
+    }
   }
 
   function handleDiscardSaved() {
-    clearDraft();
-    setSavedDraft(null);
+    clearSession();
+    setSavedSession(null);
+    setResumeError(null);
   }
 
-  function draftPlayer(playerId) {
-    if (complete || draftedIds.has(playerId)) return;
-    setPicks((prev) => [
-      ...prev,
-      { pickNumber: prev.length + 1, playerId, teamSlot: teamSlotForPick(prev.length + 1) },
-    ]);
-  }
-
-  function undo() {
-    setPicks((prev) => prev.slice(0, -1));
-  }
-
-  // Correction affordance: flip a recent pick between "mine" and "another
-  // team" (0 = generic other team) without disturbing the pick order.
-  function togglePickOwner(pickNumber) {
-    setPicks((prev) =>
-      prev.map((p) => {
-        if (p.pickNumber !== pickNumber) return p;
-        const isMine = p.teamSlot === session.userSlot;
-        return { ...p, teamSlot: isMine ? 0 : session.userSlot };
-      })
-    );
+  function handleLeave() {
+    abortRef.current?.abort();
+    setAiState(idleAi);
+    setSession(null);
+    setSavedSession(loadSession()); // the session was auto-saved; offer to rejoin
   }
 
   if (!session) {
     return (
       <SetupScreen
-        savedDraft={savedDraft}
+        savedSession={savedSession}
         onResume={handleResume}
+        resuming={resuming}
+        resumeError={resumeError}
         onDiscardSaved={handleDiscardSaved}
         defaultApiKey={ENV_API_KEY}
         onStart={handleStart}
@@ -194,41 +213,40 @@ export default function App() {
   }
 
   const recentPicks = {
-    onClockSlot: complete ? null : teamSlotForPick(currentPick),
-    items: picks.slice(-4).map((pick) => ({
-      pick,
-      player: playersById.get(pick.playerId),
-      isMine: pick.teamSlot === session.userSlot,
-    })),
+    onClockSlot: complete ? null : slotForPick(clampedPick, config),
+    items: picks.slice(-4),
   };
 
   return (
     <div className="app">
       <DraftHeader
         currentPick={currentPick}
-        userSlot={session.userSlot}
+        config={config}
         teamNames={session.teamNames}
         nextUserPickNum={nextUp}
         recentPicks={recentPicks}
-        onUndo={undo}
-        onTogglePickOwner={togglePickOwner}
         complete={complete}
+        draftStatus={draftStatus}
+        syncError={syncError}
+        lastSync={lastSync}
+        onLeave={handleLeave}
       />
       <div className="panels">
-        <PlayerList
-          players={session.players}
-          draftedIds={draftedIds}
-          onDraft={draftPlayer}
-          disabled={complete}
+        <PlayerList players={session.players} draftedIds={draftedIds} />
+        <RosterPanel
+          starters={starters}
+          bench={bench}
+          benchSize={config.benchSize}
+          gaps={gaps}
+          byes={byes}
+          complete={complete}
         />
-        <RosterPanel starters={starters} bench={bench} gaps={gaps} byes={byes} complete={complete} />
         <RecommendationsPanel
           recs={displayedRecs}
           aiState={aiState}
           model={session.model}
           hasApiKey={Boolean(session.apiKey)}
           onRefresh={triggerAi}
-          onDraft={draftPlayer}
           disabled={complete}
         />
       </div>

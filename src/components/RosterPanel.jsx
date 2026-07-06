@@ -1,4 +1,4 @@
-export default function RosterPanel({ starters, bench, gaps, byes, complete }) {
+export default function RosterPanel({ starters, bench, benchSize, gaps, byes, complete }) {
   return (
     <section className="panel">
       <h2>My Roster</h2>
@@ -24,7 +24,7 @@ export default function RosterPanel({ starters, bench, gaps, byes, complete }) {
             {slot.player ? <PlayerLine p={slot.player} /> : <span className="empty">empty</span>}
           </div>
         ))}
-        <div className="bench-header">Bench ({bench.length}/6)</div>
+        <div className="bench-header">Bench ({bench.length}/{benchSize})</div>
         {bench.map((p) => (
           <div key={p.id} className="roster-slot filled">
             <span className="slot-label">BN</span>

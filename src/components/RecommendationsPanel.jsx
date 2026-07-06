@@ -1,4 +1,4 @@
-export default function RecommendationsPanel({ recs, aiState, model, hasApiKey, onRefresh, onDraft, disabled }) {
+export default function RecommendationsPanel({ recs, aiState, model, hasApiKey, onRefresh, disabled }) {
   const modelName = (model || '').split('/').pop() || 'AI';
   return (
     <section className="panel">
@@ -23,12 +23,7 @@ export default function RecommendationsPanel({ recs, aiState, model, hasApiKey, 
       </div>
       <div className="scroll">
         {recs.map(({ player, reason, tierBreak }, i) => (
-          <div
-            key={player.id}
-            className="rec-card"
-            onClick={() => !disabled && onDraft(player.id)}
-            title={disabled ? undefined : 'Click to draft'}
-          >
+          <div key={player.id} className="rec-card">
             <div className="rec-top">
               <span style={{ color: 'var(--text-dim)' }}>{i + 1}.</span>
               <span className={`pos-badge pos-${player.pos}`}>

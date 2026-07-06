@@ -1,0 +1,96 @@
+{
+  "" : {
+    "const-values" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary.swiftconstvalues",
+    "dependencies" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary.d",
+    "diagnostics" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary.dia",
+    "emit-module-dependencies" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary-emit-module.dia",
+    "pch" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistant-primary.swiftdeps"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/App/FantasyFootballAssistantApp.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistantApp.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistantApp.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/FantasyFootballAssistantApp.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/Models.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Models.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Models.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Models.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Models/SleeperModels.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SleeperModels.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SleeperModels.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SleeperModels.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/CSV.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/CSV.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/CSV.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/CSV.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/DraftGrader.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftGrader.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftGrader.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftGrader.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/DraftMath.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftMath.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftMath.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftMath.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/NameMatching.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/NameMatching.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/NameMatching.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/NameMatching.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/Projection.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Projection.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Projection.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Projection.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/ProjectionsCSV.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/ProjectionsCSV.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/ProjectionsCSV.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/ProjectionsCSV.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/RankingsCSV.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/RankingsCSV.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/RankingsCSV.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/RankingsCSV.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/Recommender.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Recommender.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Recommender.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/Recommender.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/SessionStore.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SessionStore.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SessionStore.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SessionStore.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Services/SleeperAPI.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SleeperAPI.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SleeperAPI.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SleeperAPI.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/ViewModels/DraftSession.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftSession.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftSession.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftSession.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Views/DraftView.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftView.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftView.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/DraftView.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Views/LeaderboardView.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/LeaderboardView.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/LeaderboardView.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/LeaderboardView.o"
+  },
+  "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/FantasyFootballAssistant/Views/SetupView.swift" : {
+    "index-unit-output-path" : "/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SetupView.o",
+    "llvm-bc" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SetupView.bc",
+    "object" : "/Users/shorbo/ClaudeCode/FantasyDraftAssistant/build/DD/Build/Intermediates.noindex/FantasyFootballAssistant.build/Release/FantasyFootballAssistant.build/Objects-normal/x86_64/SetupView.o"
+  }
+}

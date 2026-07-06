@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>12</integer>
+	<key>logs</key>
+	<dict>
+		<key>9C1F5AF2-4077-4691-8885-9055DD78FAF7</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>9C1F5AF2-4077-4691-8885-9055DD78FAF7.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>FantasyFootballAssistant project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>FantasyFootballAssistant</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Cleaning project FantasyFootballAssistant with scheme FantasyFootballAssistant and configuration Release</string>
+			<key>timeStartedRecording</key>
+			<real>804904752.92556298</real>
+			<key>timeStoppedRecording</key>
+			<real>804904753.07332504</real>
+			<key>title</key>
+			<string>Cleaning project FantasyFootballAssistant with scheme FantasyFootballAssistant and configuration Release</string>
+			<key>uniqueIdentifier</key>
+			<string>9C1F5AF2-4077-4691-8885-9055DD78FAF7</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
