@@ -9,9 +9,11 @@
 /* Begin PBXBuildFile section */
 		0769C013C5E1C4D06D71CE6A /* SleeperModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0E94A3AC4EDE78150DB591 /* SleeperModels.swift */; };
 		0F9AC18FC3BA202BE763E5A0 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65988F369494572AF075CA82 /* SetupView.swift */; };
+		19EB7AF97AE60EAC6E627796 /* YahooPickReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C9839904316C98685BE6E1C /* YahooPickReceiver.swift */; };
 		2953CA98D7644FD2FADAD673 /* DraftMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDD0CB5F20FDFB373A0358B8 /* DraftMath.swift */; };
 		2D92145272E718D77DA4B90D /* Recommender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3586A10D79AAAE4D6CD0C9 /* Recommender.swift */; };
 		561AF04EFE41BC69DD752513 /* DraftGrader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610835A20B65432346F0B285 /* DraftGrader.swift */; };
+		5AAD5A80F6420E2017B57466 /* YahooIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA587C9DFBC5AC69F3AA882 /* YahooIntegrationTests.swift */; };
 		5EA74C3B6B806CE7EC46AD93 /* DraftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58194B5C269157CD0E45CCA7 /* DraftView.swift */; };
 		6E1E729890C6934D195E989A /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B7F0736D3C68209F27C1F74 /* SessionStore.swift */; };
 		6F3FAE088061E13F321ACF47 /* RankingsCSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B01EA080E6CB5CC42D5B90D /* RankingsCSV.swift */; };
@@ -22,6 +24,7 @@
 		A1671069E38ADF820F96A2B1 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F5F6878074C7EE148296CC /* ChatView.swift */; };
 		B52D9DB997AE77BC91D99356 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440A56DFDCC9B9712F4833CD /* Models.swift */; };
 		BA09EA102E1306ACFA57B42E /* ProjectionsCSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BB45C94502BDCAA8037279 /* ProjectionsCSV.swift */; };
+		C6A020E3E8D24DC55B2493A4 /* YahooModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5734A6E45F6AD45243E1F7E /* YahooModels.swift */; };
 		CD9D35E2B36C9FC3363F5942 /* OpenRouterAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51356A9666C3F6FEF943E74C /* OpenRouterAPI.swift */; };
 		CFC21863D16B1260450DDD8C /* SleeperAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 497125A3E62E23D83B6F119B /* SleeperAPI.swift */; };
 		D057D243A787BD9A4298C387 /* NameMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5897FEA301F07D6CEEBC48B0 /* NameMatching.swift */; };
@@ -44,6 +47,7 @@
 
 /* Begin PBXFileReference section */
 		15BB45C94502BDCAA8037279 /* ProjectionsCSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectionsCSV.swift; sourceTree = "<group>"; };
+		1C9839904316C98685BE6E1C /* YahooPickReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YahooPickReceiver.swift; sourceTree = "<group>"; };
 		1D7212BABF807B93B07E52AF /* FantasyFootballAssistantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FantasyFootballAssistantApp.swift; sourceTree = "<group>"; };
 		316D60AA2F8EDA053DF47865 /* Projection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Projection.swift; sourceTree = "<group>"; };
 		32F5F6878074C7EE148296CC /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -61,6 +65,7 @@
 		65988F369494572AF075CA82 /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		676CFFC07D778E6D0939DFF9 /* FantasyFootballAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FantasyFootballAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6B9D3C9802503FCD09B253EB /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
+		6BA587C9DFBC5AC69F3AA882 /* YahooIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YahooIntegrationTests.swift; sourceTree = "<group>"; };
 		7208AA45941621FD5CC47A77 /* AIAdvisor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAdvisor.swift; sourceTree = "<group>"; };
 		7939B92B4D54EF436160E086 /* AILogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AILogger.swift; sourceTree = "<group>"; };
 		7B01EA080E6CB5CC42D5B90D /* RankingsCSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RankingsCSV.swift; sourceTree = "<group>"; };
@@ -68,6 +73,7 @@
 		BDD0CB5F20FDFB373A0358B8 /* DraftMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftMath.swift; sourceTree = "<group>"; };
 		C7C51896F2E96073E70223D9 /* DraftLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DraftLogicTests.swift; sourceTree = "<group>"; };
 		D211EBFD9779A3C08CFB8869 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D5734A6E45F6AD45243E1F7E /* YahooModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YahooModels.swift; sourceTree = "<group>"; };
 		D8A9A7F6F982B87B2A9A6B77 /* FantasyFootballAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FantasyFootballAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -97,6 +103,7 @@
 				5F3586A10D79AAAE4D6CD0C9 /* Recommender.swift */,
 				8B7F0736D3C68209F27C1F74 /* SessionStore.swift */,
 				497125A3E62E23D83B6F119B /* SleeperAPI.swift */,
+				1C9839904316C98685BE6E1C /* YahooPickReceiver.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -116,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				C7C51896F2E96073E70223D9 /* DraftLogicTests.swift */,
+				6BA587C9DFBC5AC69F3AA882 /* YahooIntegrationTests.swift */,
 			);
 			path = FantasyFootballAssistantTests;
 			sourceTree = "<group>";
@@ -164,6 +172,7 @@
 			children = (
 				440A56DFDCC9B9712F4833CD /* Models.swift */,
 				5A0E94A3AC4EDE78150DB591 /* SleeperModels.swift */,
+				D5734A6E45F6AD45243E1F7E /* YahooModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -249,6 +258,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8399A2F47470240D72B49C85 /* DraftLogicTests.swift in Sources */,
+				5AAD5A80F6420E2017B57466 /* YahooIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +288,8 @@
 				0F9AC18FC3BA202BE763E5A0 /* SetupView.swift in Sources */,
 				CFC21863D16B1260450DDD8C /* SleeperAPI.swift in Sources */,
 				0769C013C5E1C4D06D71CE6A /* SleeperModels.swift in Sources */,
+				C6A020E3E8D24DC55B2493A4 /* YahooModels.swift in Sources */,
+				19EB7AF97AE60EAC6E627796 /* YahooPickReceiver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -39,6 +39,17 @@ enum NameMatching {
         return nameAliases[joined] ?? joined
     }
 
+    // Keep suffix information separately for compact Yahoo names. The regular
+    // normalizer intentionally removes it, but `B. Robinson` and
+    // `B. Robinson Jr.` can be different players on the same NFL team.
+    static func suffix(_ name: String) -> String? {
+        let token = name.lowercased()
+            .components(separatedBy: CharacterSet.lowercaseLetters.union(.decimalDigits).inverted)
+            .last(where: { !$0.isEmpty })
+        guard let token, nameSuffixes.contains(token) else { return nil }
+        return token
+    }
+
     private static func nameKey(_ pos: Position, _ name: String) -> String {
         "\(pos.rawValue):\(normalizeName(name))"
     }
@@ -83,17 +94,35 @@ enum NameMatching {
 struct PickResolver {
     private let bySleeperId: [String: RankedPlayer]
     private let byNameKey: [String: RankedPlayer]
+    private let byYahooInitialKey: [String: RankedPlayer]
+    private let byYahooInitialSuffixKey: [String: RankedPlayer]
 
     init(players: [RankedPlayer]) {
         var byId: [String: RankedPlayer] = [:]
         var byName: [String: RankedPlayer] = [:]
+        var byYahooInitial: [String: [RankedPlayer]] = [:]
+        var byYahooInitialSuffix: [String: [RankedPlayer]] = [:]
         for p in players {
             if let sid = p.sleeperId, byId[sid] == nil { byId[sid] = p }
             let key = "\(p.pos.rawValue):\(NameMatching.normalizeName(p.name))"
             if byName[key] == nil { byName[key] = p }
+            let nameParts = NameMatching.normalizeName(p.name).split(separator: " ")
+            if let first = nameParts.first, let last = nameParts.last, nameParts.count >= 2 {
+                let initialKey = "\(p.pos.rawValue):\(NameMatching.normTeam(p.team)):\(first.prefix(1)):\(last)"
+                if let suffix = NameMatching.suffix(p.name) {
+                    byYahooInitialSuffix["\(initialKey):\(suffix)", default: []].append(p)
+                } else {
+                    byYahooInitial[initialKey, default: []].append(p)
+                }
+            }
         }
         bySleeperId = byId
         byNameKey = byName
+        // Yahoo's compact pick cards use names such as "O. Hampton". Only
+        // keep an initial+surname key when position and NFL team make it
+        // unambiguous, otherwise fall through to an unranked stub.
+        byYahooInitialKey = byYahooInitial.compactMapValues { $0.count == 1 ? $0[0] : nil }
+        byYahooInitialSuffixKey = byYahooInitialSuffix.compactMapValues { $0.count == 1 ? $0[0] : nil }
     }
 
     func resolve(_ pick: SleeperPick) -> RankedPlayer {
@@ -103,6 +132,14 @@ struct PickResolver {
         let pos = Position(sleeper: md?.position)
         let name = [md?.firstName, md?.lastName].compactMap { $0 }.joined(separator: " ")
         if let p = byNameKey["\(pos.rawValue):\(NameMatching.normalizeName(name))"] { return p }
+        let parts = NameMatching.normalizeName(name).split(separator: " ")
+        if let first = parts.first, let last = parts.last, parts.count >= 2 {
+            let key = "\(pos.rawValue):\(NameMatching.normTeam(md?.team)):\(first.prefix(1)):\(last)"
+            if let suffix = NameMatching.suffix(name), let p = byYahooInitialSuffixKey["\(key):\(suffix)"] {
+                return p
+            }
+            if let p = byYahooInitialKey[key] { return p }
+        }
 
         return RankedPlayer(
             id: -(abs(pick.playerId.hashValue % 1_000_000) + 1),

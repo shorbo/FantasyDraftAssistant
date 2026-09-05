@@ -6,7 +6,7 @@ A **native macOS app (SwiftUI, Swift 6)** that assists during a fantasy football
 
 The draft assistant is the first tool in a planned **Fantasy Football Assistant** suite; in-season tools (waivers, start/sit, trades) are planned for later.
 
-> This replaces the original browser-based React prototype (still present under `src/` as legacy reference, not extended). The app is Swift-only; build with Xcode / `xcodebuild`.
+> The app is Swift-only; build with Xcode / `xcodebuild`.
 
 ---
 

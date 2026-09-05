@@ -16,17 +16,17 @@ enum ChatState {
     case error(String)
 }
 
-// Live-syncs a Sleeper draft: polls picks every few seconds, refreshes the
-// draft object periodically for status, and derives everything the draft
-// screen shows. Sleeper is the source of truth — there is no local mutation.
+// Live-syncs a draft and derives everything the draft screen shows. Sleeper
+// polls its public API; Yahoo receives local browser-extension events.
 @MainActor
 @Observable
 final class DraftSession {
     let players: [RankedPlayer]
     let config: DraftConfig
     let userId: String
-    let teamNames: [String]
+    private(set) var teamNames: [String]
     let projections: ProjectionTable?
+    let source: DraftSource
 
     private(set) var draft: SleeperDraft
     private(set) var rawPicks: [SleeperPick] = []
@@ -44,6 +44,7 @@ final class DraftSession {
     private var pollTask: Task<Void, Never>?
     private var adviceTask: Task<Void, Never>?
     private var chatTask: Task<Void, Never>?
+    private var yahooReceiver: YahooPickReceiver?
 
     private static let pollSeconds: Double = 3
     private static let draftRefreshTicks = 5
@@ -54,7 +55,8 @@ final class DraftSession {
         config: DraftConfig,
         userId: String,
         teamNames: [String],
-        projections: ProjectionTable?
+        projections: ProjectionTable?,
+        source: DraftSource = .sleeper
     ) {
         self.players = players
         self.draft = draft
@@ -62,22 +64,29 @@ final class DraftSession {
         self.userId = userId
         self.teamNames = teamNames
         self.projections = projections
+        self.source = source
         self.resolver = PickResolver(players: players)
 
-        SessionStore.save(SavedSession(
-            draftId: config.draftId,
-            draftName: config.name,
-            userId: userId,
-            players: players,
-            teamNames: teamNames,
-            projections: projections,
-            savedAt: Date()
-        ))
+        if source == .sleeper {
+            SessionStore.save(SavedSession(
+                draftId: config.draftId,
+                draftName: config.name,
+                userId: userId,
+                players: players,
+                teamNames: teamNames,
+                projections: projections,
+                savedAt: Date()
+            ))
+        }
     }
 
     // MARK: - Derived state
 
-    var status: String { draft.status ?? "pre_draft" }
+    var status: String {
+        guard source == .yahoo else { return draft.status ?? "pre_draft" }
+        if config.totalPicks > 0 && rawPicks.count >= config.totalPicks { return "complete" }
+        return rawPicks.isEmpty ? "pre_draft" : "drafting"
+    }
 
     // draft_slot (not picked_by) decides ownership so autopicked players
     // still land on the right roster.
@@ -148,6 +157,10 @@ final class DraftSession {
     // MARK: - Polling
 
     func startPolling() {
+        if source == .yahoo {
+            startYahooReceiver()
+            return
+        }
         guard pollTask == nil else { return }
         pollTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -166,6 +179,8 @@ final class DraftSession {
         adviceTask = nil
         chatTask?.cancel()
         chatTask = nil
+        yahooReceiver?.stop()
+        yahooReceiver = nil
     }
 
     // MARK: - AI Advisor (on demand only — never auto-triggered)
@@ -336,7 +351,51 @@ final class DraftSession {
 
     // Immediate out-of-band sync (also refreshes draft status).
     func refreshNow() {
-        Task { await syncNow() }
+        if source == .sleeper { Task { await syncNow() } }
+    }
+
+    private func startYahooReceiver() {
+        guard yahooReceiver == nil else { return }
+        let receiver = YahooPickReceiver()
+        receiver.onPick = { [weak self] event in
+            Task { @MainActor in self?.receiveYahooPick(event) }
+        }
+        do {
+            try receiver.start()
+            yahooReceiver = receiver
+            syncError = nil
+            lastSync = Date()
+        } catch {
+            syncError = "Could not start Yahoo receiver on 127.0.0.1:\(YahooPickReceiver.port): \(error.localizedDescription)"
+        }
+    }
+
+    private func receiveYahooPick(_ event: YahooDraftPickEvent) {
+        guard source == .yahoo, event.pick <= config.totalPicks, !rawPicks.contains(where: { $0.pickNo == event.pick }) else { return }
+        let slot = event.draftSlot ?? DraftMath.slot(forPick: event.pick, config: config)
+        guard slot >= 1, slot <= config.teams else { return }
+        if let name = event.fantasyTeam?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty,
+           slot <= teamNames.count {
+            teamNames[slot - 1] = name
+        }
+        let words = event.playerName.split(separator: " ", maxSplits: 1).map(String.init)
+        let pick = SleeperPick(
+            pickNo: event.pick,
+            round: event.round ?? DraftMath.round(forPick: event.pick, teams: config.teams),
+            draftSlot: slot,
+            playerId: "yahoo:\(event.pick)",
+            pickedBy: nil,
+            metadata: SleeperPickMetadata(
+                firstName: words.first,
+                lastName: words.count > 1 ? words[1] : nil,
+                position: event.position,
+                team: event.nflTeam
+            )
+        )
+        rawPicks.append(pick)
+        rawPicks.sort { $0.pickNo < $1.pickNo }
+        lastSync = Date()
+        syncError = nil
     }
 
     // Coalesces concurrent sync requests (the background poll and an
@@ -360,6 +419,7 @@ final class DraftSession {
     }
 
     private func performSync(_ n: Int) async {
+        guard source == .sleeper else { return }
         do {
             let latest = try await SleeperAPI.draftPicks(config.draftId)
             rawPicks = latest.sorted { $0.pickNo < $1.pickNo }

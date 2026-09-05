@@ -129,6 +129,41 @@ final class NameMatchingTests: XCTestCase {
         XCTAssertLessThan(resolved.id, 0)
         XCTAssertEqual(resolved.pos, .te)
     }
+
+    func testPickResolverMatchesYahooInitialAndTeam() {
+        let player = RankedPlayer(
+            id: 1, rank: 1, tier: 1, name: "Omarion Hampton", team: "LAC", pos: .rb,
+            posRank: 1, bye: 7
+        )
+        let resolver = PickResolver(players: [player])
+        let pick = SleeperPick(
+            pickNo: 16, round: 2, draftSlot: 4, playerId: "yahoo:16", pickedBy: nil,
+            metadata: SleeperPickMetadata(firstName: "O.", lastName: "Hampton", position: "RB", team: "LAC")
+        )
+        XCTAssertEqual(resolver.resolve(pick).id, 1)
+    }
+
+    func testPickResolverDistinguishesYahooSuffixFromPlainInitial() {
+        let bijan = RankedPlayer(
+            id: 1, rank: 1, tier: 1, name: "Bijan Robinson", team: "ATL", pos: .rb,
+            posRank: 1, bye: 5
+        )
+        let brian = RankedPlayer(
+            id: 2, rank: 2, tier: 1, name: "Brian Robinson Jr.", team: "ATL", pos: .rb,
+            posRank: 2, bye: 5
+        )
+        let resolver = PickResolver(players: [bijan, brian])
+        let bijanPick = SleeperPick(
+            pickNo: 1, round: 1, draftSlot: 1, playerId: "yahoo:1", pickedBy: nil,
+            metadata: SleeperPickMetadata(firstName: "B.", lastName: "Robinson", position: "RB", team: "ATL")
+        )
+        let brianPick = SleeperPick(
+            pickNo: 2, round: 1, draftSlot: 2, playerId: "yahoo:2", pickedBy: nil,
+            metadata: SleeperPickMetadata(firstName: "B.", lastName: "Robinson Jr.", position: "RB", team: "ATL")
+        )
+        XCTAssertEqual(resolver.resolve(bijanPick).id, bijan.id)
+        XCTAssertEqual(resolver.resolve(brianPick).id, brian.id)
+    }
 }
 
 final class RankingsCSVTests: XCTestCase {

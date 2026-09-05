@@ -80,7 +80,3 @@ No backend, no database, no account system — everything runs locally except th
 ## Status
 
 Draft assistant is the first tool in a planned Fantasy Football Assistant suite. In-season tools (waivers, start/sit, trades) are not yet implemented.
-
-## Legacy
-
-The `src/` directory contains an earlier React/web prototype of this app. It is not maintained and is kept only for reference — the native SwiftUI app under `FantasyFootballAssistant/` is the current implementation.

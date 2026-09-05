@@ -9,6 +9,7 @@ struct DraftView: View {
     var body: some View {
         VStack(spacing: 0) {
             headerView
+            if session.source == .yahoo { yahooReceiverView }
             Divider()
             if session.complete && showLeaderboard {
                 LeaderboardView(session: session)
@@ -29,6 +30,24 @@ struct DraftView: View {
                 }
             }
         }
+    }
+
+    private var yahooReceiverView: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "bolt.horizontal.circle.fill").foregroundStyle(.orange)
+            Text("Yahoo extension receiver:").font(.caption).bold()
+            Text("http://127.0.0.1:8765/api/draft/pick")
+                .font(.caption.monospaced()).textSelection(.enabled)
+            if let error = session.syncError {
+                Text(error).font(.caption).foregroundStyle(.red)
+            } else {
+                Text("Extension sends picks automatically").font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 7)
+        .background(.orange.opacity(0.10))
     }
 
     private var headerView: some View {

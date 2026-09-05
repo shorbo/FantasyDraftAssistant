@@ -1,5 +1,17 @@
 import Foundation
 
+enum DraftSource: String, Codable, CaseIterable, Sendable {
+    case sleeper
+    case yahoo
+
+    var displayName: String {
+        switch self {
+        case .sleeper: "Sleeper"
+        case .yahoo: "Yahoo Fantasy"
+        }
+    }
+}
+
 enum Position: String, Codable, CaseIterable, Sendable {
     case qb = "QB"
     case rb = "RB"

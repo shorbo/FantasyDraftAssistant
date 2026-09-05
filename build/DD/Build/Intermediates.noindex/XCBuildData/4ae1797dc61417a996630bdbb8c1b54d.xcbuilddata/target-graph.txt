@@ -1,2 +1,0 @@
-Target dependency graph (1 target)
-Target 'FantasyFootballAssistant' in project 'FantasyFootballAssistant' (no dependencies)

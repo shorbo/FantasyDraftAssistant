@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Fantasy Draft Assistant — Yahoo",
+  "version": "0.1.0",
+  "description": "Sends visible Yahoo Fantasy Football draft picks to Fantasy Draft Assistant running on this Mac.",
+  "permissions": ["scripting", "tabs"],
+  "host_permissions": [
+    "http://127.0.0.1:8765/*",
+    "*://*.fantasysports.yahoo.com/*",
+    "*://sports.yahoo.com/*"
+  ],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.fantasysports.yahoo.com/*",
+        "*://sports.yahoo.com/*"
+      ],
+      "js": ["parser.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

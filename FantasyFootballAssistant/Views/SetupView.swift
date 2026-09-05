@@ -11,6 +11,8 @@ private let statusLabels: [String: String] = [
 struct SetupView: View {
     var onStart: (DraftSession) -> Void
 
+    @State private var provider: DraftSource = .sleeper
+
     // rankings
     @State private var players: [RankedPlayer]?
     @State private var fileName = ""
@@ -37,6 +39,23 @@ struct SetupView: View {
     @State private var draftLoading = false
     @State private var sleeperError: String?
     @State private var manualSlot = 1
+
+    // Yahoo POC setup. The extension only supplies completed picks, so these
+    // values intentionally live in the app rather than being inferred.
+    @State private var yahooName = "Yahoo draft"
+    @State private var yahooTeams = 12
+    @State private var yahooRounds = 15
+    @State private var yahooSlot = 1
+    @State private var yahooType = "snake"
+    @State private var yahooTeamNames = ""
+    @State private var yahooQB = 1
+    @State private var yahooRB = 2
+    @State private var yahooWR = 2
+    @State private var yahooTE = 1
+    @State private var yahooFlex = 1
+    @State private var yahooK = 1
+    @State private var yahooDST = 1
+    @State private var yahooBench = 6
 
     // AI advisor (on-demand, optional)
     @AppStorage("openRouterApiKey") private var openRouterApiKey = ""
@@ -77,7 +96,11 @@ struct SetupView: View {
     private var unsupportedType: Bool { selectedDraft?.type == "auction" }
 
     private var canStart: Bool {
-        players != nil && selectedDraft != nil && user != nil && !unsupportedType && !starting
+        guard players != nil, !starting else { return false }
+        if provider == .yahoo {
+            return yahooTeams >= 2 && yahooRounds >= 1 && (1...yahooTeams).contains(yahooSlot)
+        }
+        return selectedDraft != nil && user != nil && !unsupportedType
     }
 
     var body: some View {
@@ -93,7 +116,8 @@ struct SetupView: View {
 
                 rankingsSection
                 projectionsSection
-                sleeperSection
+                providerSection
+                if provider == .sleeper { sleeperSection } else { yahooSection }
                 advisorSection
 
                 if let startError {
@@ -118,6 +142,22 @@ struct SetupView: View {
     }
 
     // MARK: - Sections
+
+    private var providerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Draft provider").bold()
+            Picker("Draft provider", selection: $provider) {
+                ForEach(DraftSource.allCases, id: \.self) { source in
+                    Text(source.displayName).tag(source)
+                }
+            }
+            .pickerStyle(.segmented)
+            Text(provider == .sleeper
+                ? "Connect to a Sleeper draft using its public read-only API."
+                : "Receive visible Yahoo completed picks from the local browser extension.")
+                .font(.callout).foregroundStyle(.secondary)
+        }
+    }
 
     private func resumeBanner(_ saved: SavedSession) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -334,6 +374,51 @@ struct SetupView: View {
         }
     }
 
+    private var yahooSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Yahoo draft setup").bold()
+            Text("Enter these values from your Yahoo draft room. The extension will provide completed picks; it does not read credentials or make selections.")
+                .font(.callout).foregroundStyle(.secondary)
+            TextField("Draft name", text: $yahooName)
+                .textFieldStyle(.roundedBorder)
+            HStack {
+                labeledNumber("Teams", value: $yahooTeams, range: 2...32)
+                labeledNumber("Rounds", value: $yahooRounds, range: 1...30)
+                labeledNumber("My slot", value: $yahooSlot, range: 1...max(yahooTeams, 1))
+            }
+            Picker("Format", selection: $yahooType) {
+                Text("Snake").tag("snake")
+                Text("Linear").tag("linear")
+            }
+            .pickerStyle(.segmented)
+            HStack {
+                labeledNumber("QB", value: $yahooQB, range: 0...4)
+                labeledNumber("RB", value: $yahooRB, range: 0...6)
+                labeledNumber("WR", value: $yahooWR, range: 0...6)
+                labeledNumber("TE", value: $yahooTE, range: 0...4)
+                labeledNumber("FLEX", value: $yahooFlex, range: 0...6)
+            }
+            HStack {
+                labeledNumber("K", value: $yahooK, range: 0...3)
+                labeledNumber("DST", value: $yahooDST, range: 0...3)
+                labeledNumber("Bench", value: $yahooBench, range: 0...20)
+                Spacer()
+            }
+            TextField("Team names, comma-separated (optional)", text: $yahooTeamNames)
+                .textFieldStyle(.roundedBorder)
+            Text("After connecting, copy the receiver address and token from the draft screen into the extension’s Options page, then open your Yahoo draft.")
+                .font(.callout).foregroundStyle(.secondary)
+        }
+    }
+
+    private func labeledNumber(_ label: String, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(label).font(.caption).foregroundStyle(.secondary)
+            Stepper(value: value, in: range) { Text("\(value.wrappedValue)").monospacedDigit() }
+                .frame(minWidth: 76)
+        }
+    }
+
     private func draftOption(_ d: SleeperDraft) -> some View {
         Button {
             select(draftId: d.draftId)
@@ -519,6 +604,10 @@ struct SetupView: View {
     }
 
     private func start() {
+        if provider == .yahoo {
+            startYahoo()
+            return
+        }
         guard let matchedPlayers, let selectedDraft, let user else { return }
         starting = true
         startError = nil
@@ -535,6 +624,46 @@ struct SetupView: View {
                 teamNames: teamNames,
                 projections: projections
             ))
+        }
+    }
+
+    private func startYahoo() {
+        guard let matchedPlayers else { return }
+        starting = true
+        startError = nil
+        let teamNames = yahooTeamNames.split(separator: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let names = (1...yahooTeams).map { index in
+            index <= teamNames.count && !teamNames[index - 1].isEmpty ? teamNames[index - 1] : "Team \(index)"
+        }
+        let slots = manualSlots()
+        let config = DraftMath.buildManualConfig(
+            name: yahooName, teams: yahooTeams, rounds: yahooRounds, type: yahooType,
+            userSlot: yahooSlot, slots: slots, benchSize: yahooBench
+        )
+        // Yahoo sessions cannot be resumed: the receiver token deliberately
+        // changes for every app launch.
+        SessionStore.clear()
+        let placeholderDraft = SleeperDraft(
+            draftId: config.draftId, leagueId: nil, season: config.season, type: config.type,
+            status: "pre_draft", startTime: nil, created: nil, settings: nil, metadata: nil, draftOrder: nil
+        )
+        onStart(DraftSession(
+            players: matchedPlayers, draft: placeholderDraft, config: config, userId: "yahoo-local",
+            teamNames: names, projections: projections, source: .yahoo
+        ))
+        starting = false
+    }
+
+    private func manualSlots() -> [LineupSlot] {
+        let definitions: [(String, [Position], Int)] = [
+            ("QB", [.qb], yahooQB), ("RB", [.rb], yahooRB), ("WR", [.wr], yahooWR),
+            ("TE", [.te], yahooTE), ("FLEX", [.rb, .wr, .te], yahooFlex),
+            ("K", [.k], yahooK), ("DST", [.dst], yahooDST),
+        ]
+        return definitions.flatMap { label, positions, count in
+            (1...max(count, 0)).map { index in
+                LineupSlot(key: count > 1 ? "\(label)\(index)" : label, label: label, positions: positions)
+            }
         }
     }
 

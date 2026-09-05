@@ -50,6 +50,22 @@ enum DraftMath {
         )
     }
 
+    // Yahoo does not expose draft settings through the POC receiver, so its
+    // setup flow supplies these values directly rather than guessing from a
+    // pick event.
+    static func buildManualConfig(
+        name: String, teams: Int, rounds: Int, type: String, userSlot: Int,
+        slots: [LineupSlot], benchSize: Int
+    ) -> DraftConfig {
+        DraftConfig(
+            draftId: "yahoo-local", leagueId: nil,
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Yahoo draft" : name,
+            season: SleeperAPI.currentSeason, type: type, reversalRound: 0,
+            teams: teams, rounds: rounds, slots: slots, benchSize: benchSize,
+            scoring: nil, userSlot: userSlot
+        )
+    }
+
     static func round(forPick pick: Int, teams: Int) -> Int {
         teams > 0 ? Int(ceil(Double(pick) / Double(teams))) : 1
     }
