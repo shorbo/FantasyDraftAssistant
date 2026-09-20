@@ -75,7 +75,8 @@ final class DraftSession {
                 players: players,
                 teamNames: teamNames,
                 projections: projections,
-                savedAt: Date()
+                savedAt: Date(),
+                rankingsScoring: config.rankingsScoring
             ))
         }
     }
@@ -131,6 +132,13 @@ final class DraftSession {
     // Top available by consensus rank at each position the league starts.
     var recommendations: [Recommender.PositionGroup] {
         Recommender.topByPosition(available: available, config: config, limit: 3)
+    }
+
+    var primaryRecommendation: Recommendation? {
+        Recommender.primaryRecommendation(
+            available: available, myPlayers: myPlayers, picks: picks,
+            config: config, currentPick: currentPick
+        )
     }
 
     // Ids of players who are the last available in their positional tier —
@@ -190,6 +198,22 @@ final class DraftSession {
             .trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    // Always available locally, including while AI is waiting or has timed out.
+    var instantRankingsAdvice: AIAdvice? {
+        guard let recommendation = primaryRecommendation else { return nil }
+        let board = Recommender.draftPlan(
+            available: available, myPlayers: myPlayers, picks: picks,
+            config: config, currentPick: currentPick
+        ).candidates
+        let alternatives = board.filter { $0.id != recommendation.player.id }.prefix(2)
+        return AIAdvice(
+            pickId: recommendation.player.id, rule: nil,
+            why: "\(recommendation.reason) This is a rankings fallback; AI has not evaluated the tradeoffs.",
+            alternates: alternatives.map { AICandidate(id: $0.id, reason: "Next eligible option by consensus rank.") },
+            ifSniped: nil
+        )
+    }
+
     // Only forwarded to OpenRouter when the currently selected model's
     // catalog entry actually advertises support for it.
     private func currentReasoningEffort(for model: String) -> String? {
@@ -213,6 +237,7 @@ final class DraftSession {
             .trimmingCharacters(in: .whitespaces)
         let model = (UserDefaults.standard.string(forKey: "openRouterModel") ?? "")
             .trimmingCharacters(in: .whitespaces)
+        let fastMode = UserDefaults.standard.object(forKey: "advisorFastPicks") as? Bool ?? true
         guard !apiKey.isEmpty else {
             adviceState = .error("Add your OpenRouter API key on the setup screen first.")
             return
@@ -232,32 +257,44 @@ final class DraftSession {
                 return
             }
             let forPick = self.currentPick
+            let candidates = Recommender.draftPlan(
+                available: self.available, myPlayers: self.myPlayers, picks: self.picks,
+                config: self.config, currentPick: forPick
+            ).candidates
+            guard !candidates.isEmpty else {
+                self.adviceState = .error("No eligible players remain for your upcoming selection.")
+                return
+            }
             let prompt = AIAdvisor.buildPrompt(
                 config: self.config,
-                currentPick: self.clampedPick,
-                nextUserPick: self.nextUserPickNumber,
+                currentPick: self.currentPick,
                 myPlayers: self.myPlayers,
                 available: self.available,
                 picks: self.picks,
                 teamNames: self.teamNames,
-                allPlayers: self.players,
-                projections: self.projections,
-                projectionsAreReal: self.hasRealProjections
+                fastMode: fastMode
             )
             self.adviceState = .loading(forPick: forPick)
-            let reasoningEffort = self.currentReasoningEffort(for: model)
+            let reasoningEffort = fastMode
+                ? OpenRouterModelCache.shared.info(for: model.isEmpty ? AIAdvisor.defaultModel : model)?.fastReasoningEffort
+                : self.currentReasoningEffort(for: model)
             do {
                 let advice = try await AIAdvisor.advise(
-                    apiKey: apiKey, model: model, reasoningEffort: reasoningEffort, prompt: prompt,
+                    apiKey: apiKey, model: model, reasoningEffort: reasoningEffort, prompt: prompt, fastMode: fastMode,
                     onDelta: { [weak self] delta in
                         Task { @MainActor in self?.adviceStreamedChars += delta.count }
                     }
                 )
                 guard !Task.isCancelled else { return }
+                try AIAdvisor.validate(advice, candidates: candidates)
                 self.adviceState = .ready(forPick: forPick, advice: advice)
             } catch {
                 guard !Task.isCancelled else { return }
-                self.adviceState = .error(error.localizedDescription)
+                if fastMode, (error as? URLError)?.code == .timedOut {
+                    self.adviceState = .error("AI did not finish within 12 seconds. Use the rankings fallback below or try again.")
+                } else {
+                    self.adviceState = .error(error.localizedDescription)
+                }
             }
         }
     }
@@ -302,15 +339,11 @@ final class DraftSession {
 
             let prompt = AIAdvisor.buildChatPrompt(
                 config: self.config,
-                currentPick: self.clampedPick,
-                nextUserPick: self.nextUserPickNumber,
+                currentPick: self.currentPick,
                 myPlayers: self.myPlayers,
                 available: self.available,
                 picks: self.picks,
                 teamNames: self.teamNames,
-                allPlayers: self.players,
-                projections: self.projections,
-                projectionsAreReal: self.hasRealProjections,
                 history: history,
                 question: question
             )

@@ -11,6 +11,7 @@ struct SavedSession: Codable, Sendable {
     var teamNames: [String]
     var projections: ProjectionTable? // optional → old saved sessions still decode
     var savedAt: Date
+    var rankingsScoring: String? = nil
 }
 
 enum SessionStore {

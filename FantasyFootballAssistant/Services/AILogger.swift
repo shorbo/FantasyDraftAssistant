@@ -22,10 +22,12 @@ enum AILogger {
         prompt: String,
         response: String?,
         error: String?,
-        durationSeconds: Double
+        durationSeconds: Double,
+        details: String? = nil
     ) {
         var entry = "===== \(timestamp(Date())) [\(kind)] model=\(model) duration=\(String(format: "%.1f", durationSeconds))s =====\n"
         entry += "--- PROMPT ---\n\(prompt)\n"
+        if let details { entry += "--- REQUEST DETAILS ---\n\(details)\n" }
         if let response { entry += "--- RESPONSE ---\n\(response)\n" }
         if let error { entry += "--- ERROR ---\n\(error)\n" }
         entry += "\n"

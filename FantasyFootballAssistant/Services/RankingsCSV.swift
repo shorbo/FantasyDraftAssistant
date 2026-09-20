@@ -36,6 +36,7 @@ enum RankingsCSV {
     // Optional: the delta between expert consensus rank and ADP. Used to
     // derive ADP (rank + delta).
     private static let ecrVsAdpAliases = ["ECR VS. ADP", "ECR VS ADP"]
+    private static let upsideAliases = ["UPSIDE", "UPSIDE RATING"]
 
     static func parse(_ url: URL) throws -> [RankedPlayer] {
         guard let text = try? String(contentsOf: url, encoding: .utf8) else {
@@ -62,6 +63,7 @@ enum RankingsCSV {
         guard missing.isEmpty else { throw RankingsCSVError.missingColumns(missing) }
 
         let ecrVsAdpIndex = ecrVsAdpAliases.lazy.compactMap { headerIndex[$0] }.first
+        let upsideIndex = upsideAliases.lazy.compactMap { headerIndex[$0] }.first
 
         func cell(_ row: [String], _ column: String) -> String {
             guard let i = index[column], i < row.count else { return "" }
@@ -75,6 +77,13 @@ enum RankingsCSV {
                 .trimmingCharacters(in: .whitespaces)
                 .replacingOccurrences(of: "+", with: "")
             return Double(raw)
+        }
+
+        func upside(_ row: [String]) -> Int? {
+            guard let i = upsideIndex, i < row.count else { return nil }
+            let raw = row[i].trimmingCharacters(in: .whitespaces)
+            let digits = raw.prefix(while: { $0.isNumber })
+            return digits.isEmpty ? nil : Int(digits)
         }
 
         var players: [RankedPlayer] = []
@@ -97,7 +106,8 @@ enum RankingsCSV {
                 pos: pos,
                 posRank: posRank,
                 bye: Int(cell(row, "BYE")),
-                adp: ecrVsAdp(row).map { Double(rank) + $0 }
+                adp: ecrVsAdp(row).map { Double(rank) + $0 },
+                upsideRating: upside(row)
             ))
         }
 

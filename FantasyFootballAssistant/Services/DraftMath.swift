@@ -55,14 +55,14 @@ enum DraftMath {
     // pick event.
     static func buildManualConfig(
         name: String, teams: Int, rounds: Int, type: String, userSlot: Int,
-        slots: [LineupSlot], benchSize: Int
+        slots: [LineupSlot], benchSize: Int, scoring: String = "half_ppr"
     ) -> DraftConfig {
         DraftConfig(
             draftId: "yahoo-local", leagueId: nil,
             name: name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Yahoo draft" : name,
             season: SleeperAPI.currentSeason, type: type, reversalRound: 0,
             teams: teams, rounds: rounds, slots: slots, benchSize: benchSize,
-            scoring: nil, userSlot: userSlot
+            scoring: scoring, userSlot: userSlot
         )
     }
 

@@ -13,6 +13,19 @@ enum OpenRouterAPI {
         let name: String?
         let contextLength: Int?
         let supportsReasoning: Bool
+        var supportedReasoningEfforts: [String]? = nil
+        var reasoningIsMandatory: Bool = false
+
+        var fastReasoningEffort: String? {
+            guard supportsReasoning else { return nil }
+            // The list describes levels while reasoning is ON; it need not list "none".
+            guard reasoningIsMandatory else { return "none" }
+            if let efforts = supportedReasoningEfforts {
+                return ["minimal", "low", "medium", "high", "xhigh"]
+                    .first { efforts.contains($0) }
+            }
+            return "low"
+        }
 
         // "1M ctx", "200K ctx", or the raw number for odd sizes.
         var contextLengthLabel: String? {
@@ -34,13 +47,18 @@ enum OpenRouterAPI {
         }
         struct Envelope: Decodable {
             struct Model: Decodable {
+                struct Reasoning: Decodable {
+                    let supported_efforts: [String]?
+                    let mandatory: Bool?
+                }
                 let id: String
                 let name: String?
                 let contextLength: Int?
                 let supportedParameters: [String]?
+                let reasoning: Reasoning?
 
                 enum CodingKeys: String, CodingKey {
-                    case id, name
+                    case id, name, reasoning
                     case contextLength = "context_length"
                     case supportedParameters = "supported_parameters"
                 }
@@ -54,7 +72,9 @@ enum OpenRouterAPI {
                     id: $0.id,
                     name: $0.name,
                     contextLength: $0.contextLength,
-                    supportsReasoning: $0.supportedParameters?.contains("reasoning") ?? false
+                    supportsReasoning: $0.supportedParameters?.contains("reasoning") ?? false,
+                    supportedReasoningEfforts: $0.reasoning?.supported_efforts,
+                    reasoningIsMandatory: $0.reasoning?.mandatory ?? false
                 )
             }
             .sorted { $0.id < $1.id }

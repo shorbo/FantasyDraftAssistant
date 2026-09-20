@@ -2,7 +2,7 @@
 
 ## Overview
 
-A **native macOS app (SwiftUI, Swift 6)** that assists during a fantasy football draft. It **live-syncs with a Sleeper draft** (mock or real) — Sleeper is the source of truth for picks, and the app watches, tracks your roster, and recommends who to take next. Two recommendation layers: an instant, deterministic **Best Available** panel from FantasyPros consensus rankings, and an on-demand **AI Advisor** that runs a code-computed analytics engine (VORP, ADP value, survival odds, tier cliffs, dropoffs) through an LLM applying a strict decision procedure. It never makes picks for you; you pick in Sleeper and the app advises. When the draft ends it scores every team and shows a **leaderboard** so you can learn from your steals and reaches.
+A **native macOS app (SwiftUI, Swift 6)** that assists during a fantasy football draft. It **live-syncs with a Sleeper draft** (mock or real) — Sleeper is the source of truth for picks, and the app watches, tracks your roster, and recommends who to take next. Two recommendation layers: an instant, deterministic **Best Available** panel from FantasyPros consensus rankings, and an on-demand **AI Advisor** that compares a constrained rankings shortlist with roster needs and league-specific strategy. It never makes picks for you; you pick in Sleeper and the app advises. When the draft ends it scores every team and shows a **leaderboard** so you can learn from your steals and reaches.
 
 The draft assistant is the first tool in a planned **Fantasy Football Assistant** suite; in-season tools (waivers, start/sit, trades) are planned for later.
 
@@ -25,7 +25,7 @@ All league and draft settings are **read from Sleeper** at connect time — noth
 ## Setup Screen
 
 1. **Rankings CSV** — user selects a FantasyPros consensus export ("Draft ALL Rankings"). Parsed and matched against the Sleeper player database (see below).
-2. **Projections (optional)** — one or more FantasyPros per-position projection CSVs (QB/RB/WR/TE/K/DST). Used for VORP and the projected-points leaderboard; positions not loaded fall back to modeled projections.
+2. **Projections (optional)** — one or more FantasyPros per-position projection CSVs (QB/RB/WR/TE/K/DST). Used for the projected-points leaderboard; positions not loaded fall back to modeled projections.
 3. **Connect to Sleeper** — user enters their Sleeper **username** and season; the app lists their drafts for that season (mock drafts included), most recent first. Alternatively, paste a **draft URL or id** directly.
 4. **Pick a draft** — selecting one shows a summary (teams, type, rounds, status) and confirms which slot is the user's.
 5. **AI Advisor (optional)** — an **OpenRouter API key** (validated live against `/key`), plus a **model** chosen from the OpenRouter catalog (searchable picker showing context-window size and reasoning support). Key + model persist in `UserDefaults`.
@@ -100,35 +100,22 @@ The FantasyPros export has quirks the parser must handle:
 
 ### 4b. AI Advisor (on demand)
 
-The advisor's guiding principle: **code computes all the math; the LLM only exercises judgment over precomputed, annotated data.** This avoids asking the model to derive dropoffs/survivability from raw lists, which it does unreliably.
+The advisor uses **consensus rankings first, with roster needs and flexible strategy**. Yahoo setup explicitly records league scoring (half-PPR by default), and rankings imports carry a user-declared scoring format. The app does not convert rankings between formats; mismatches are disclosed.
 
-**Analytics engine** ([`DraftAnalytics.swift`](FantasyFootballAssistant/Services/DraftAnalytics.swift)) — computed fresh each request, entirely in code:
-
-- **VORP (Value Over Replacement Player)** — the headline value metric: `player_projected_points − replacement_level_at_position`. Replacement levels are computed from the league shape: dedicated starters (`teams × slots`) plus a share of the flex pool (default flex allocation 40% RB / 55% WR / 5% TE), which pushes RB/WR replacement deeper in a 2-FLEX format (correctly making QB a stronger wait). For a 10-team/2-FLEX league this yields QB #12, RB #28, WR #31, TE #11, K/DST #11 — matching the spec.
-- **ADP value** — `adpΔ = current_pick − ADP` (positive = falling past market), shown alongside `rankΔ` vs. consensus rank.
-- **Survival probability** — for each board player, chance they last to the user's next pick, from a piecewise-linear curve on `(ADP − pick) − picks_until_next_turn`, minus a positional-run penalty (default 7% per open slot among intervening opponents; an open FLEX counts 0.5 for RB/WR/TE).
-- **Tier survival** — per position, `1 − Π(1 − survival_i)` over the top available tier ("any survive to next pick N%").
-- **Dropoff** — per position, best VORP now minus the survival-weighted expected best VORP at the next pick.
-- **Capacity math** — remaining picks vs. empty starting slots (all 10 count as required, including both FLEX).
-
-**LLM layer** — a separate **"Ask AI"** panel, strictly on-demand (a button, never auto-triggered), that forces a fresh Sleeper sync, then sends the fully-annotated board to **OpenRouter** (user-selected model; reasoning effort forwarded only for models that support it). The system instruction is a **strict ordered decision procedure** (evaluate in order, stop at the first rule that decides, cite the rule number):
-
-1. **Capacity hard rule** — if remaining picks ≤ empty required slots, fill a required slot now.
-2. **Tier cliff at a position of need** — open slot + top-tier "any survive" < 40% + positive VORP.
-3. **Best VORP unlikely to survive** — among top-5 VORP, prefer the lowest survival (with an open-slot override under 60%).
-4. **Tiebreakers** (VORP within ~5 pts) — fills a slot / round-phase upside / duplicate bye at QB or TE only.
-
-Plus a **round-phase strategy** (RB/WR hammer rounds 1–6, fill flex + TE/QB windows 7–10, ceiling over floor 11–13, K/DST last two rounds) and **snake-turn pair planning** when the user is at the turn (≤2 opponent picks between their two picks).
-
-- **Output** is rendered as **PICK / WHY / ALTERNATES / IF SNIPED** with a "Rule N" badge (driven by structured JSON so player-id linking, TAKEN detection, and position badges keep working). Stale advice is flagged when the pick has moved on since it was generated.
-- **Projection provenance** — the prompt states whether projections are user-loaded or modeled, and instructs the model to hedge point-based claims when modeled.
-- **Bye stacking is demoted** — no longer a primary factor; only tiebreaker (c), and only for duplicate byes at QB or TE.
-- Requires an OpenRouter API key entered at setup; without it the panel is disabled and consensus recommendations are unaffected.
+- Code builds a shortlist from the top 12 eligible players by rank plus the top 3 at each eligible position. Drafted players and positions outside the actual lineup are excluded.
+- When remaining selections are no greater than empty starting slots, only players filling an empty slot are eligible. K/DST are reserved for the final rounds unless capacity requires them earlier; unnecessary backups are excluded.
+- The AI compares rank and tier first, uses roster need to break close decisions, and treats ADP as a qualitative market clue. No synthetic projections, VORP, survival probabilities, or forced QB/TE round windows enter the advisor or chat prompts.
+- Strategy uses actual scoring and lineup, including multiple-QB formats. Late bench upside requires supporting information; the model must not invent player news.
+- The upcoming selection and following selection are separate. Pair planning applies only when two or fewer opponent picks lie between those selections.
+- **Fast picks** defaults on: compact prompt/answers, an 800-token output budget, reasoning disabled where supported (otherwise the lowest supported effort), latency-prioritized provider routing, and a 12-second total AI request deadline. A clearly labeled deterministic rankings fallback appears immediately and remains available during loading and errors. Chat retains its chosen reasoning setting.
+- Advice remains on demand through OpenRouter, with streaming, model selection, and supported reasoning effort. Sleeper refreshes picks before a request; Yahoo uses the current received events.
+- Output is **PICK / WHY / ALTERNATES / IF SNIPED**, with up to two distinct alternates. Code validates primary and alternate IDs against the exact eligible shortlist. Stale advice is flagged when the board moves.
+- Requires an OpenRouter API key. The consensus Best Available panel works without one. Optional projections remain available for the end-of-draft leaderboard.
 
 ### 4c. AI Chat (on demand)
 
 - A **chat panel** occupying the lower half of the Advisor panel (always visible), for free-form follow-up questions.
-- Each message forces a fresh Sleeper sync and sends the **same fully-annotated context** as the advisor plus the running conversation, so answers stay grounded as the board moves.
+- Each message forces a fresh Sleeper sync and sends the **same rankings, roster, and strategy context** as the advisor plus the running conversation, so answers stay grounded as the board moves.
 - Model picker (with context-window and reasoning badges), reasoning-effort menu, a **Stop** button with elapsed timer on both advisor and chat requests.
 
 ### 4d. Request logging

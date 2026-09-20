@@ -3,10 +3,45 @@ import Foundation
 // Matches FantasyPros rankings to Sleeper player ids, and resolves live
 // Sleeper picks back to rankings rows.
 enum NameMatching {
-    // Both sides use slightly different team codes for a few franchises.
+    // Both sides use different codes, full names, or nicknames for franchises.
+    // Canonical codes keep Yahoo's "Texans" and a rankings export's
+    // "Houston Texans" from becoming separate DSTs.
     private static let teamAliases: [String: String] = [
         "JAC": "JAX", "WSH": "WAS", "ARZ": "ARI", "BLT": "BAL", "CLV": "CLE",
         "HST": "HOU", "LA": "LAR", "SD": "LAC", "STL": "LAR", "OAK": "LV",
+        "ARIZONA CARDINALS": "ARI", "CARDINALS": "ARI",
+        "ATLANTA FALCONS": "ATL", "FALCONS": "ATL",
+        "BALTIMORE RAVENS": "BAL", "RAVENS": "BAL",
+        "BUFFALO BILLS": "BUF", "BILLS": "BUF",
+        "CAROLINA PANTHERS": "CAR", "PANTHERS": "CAR",
+        "CHICAGO BEARS": "CHI", "BEARS": "CHI",
+        "CINCINNATI BENGALS": "CIN", "BENGALS": "CIN",
+        "CLEVELAND BROWNS": "CLE", "BROWNS": "CLE",
+        "DALLAS COWBOYS": "DAL", "COWBOYS": "DAL",
+        "DENVER BRONCOS": "DEN", "BRONCOS": "DEN",
+        "DETROIT LIONS": "DET", "LIONS": "DET",
+        "GREEN BAY PACKERS": "GB", "PACKERS": "GB",
+        "HOUSTON TEXANS": "HOU", "TEXANS": "HOU",
+        "INDIANAPOLIS COLTS": "IND", "COLTS": "IND",
+        "JACKSONVILLE JAGUARS": "JAX", "JAGUARS": "JAX",
+        "KANSAS CITY CHIEFS": "KC", "CHIEFS": "KC",
+        "LAS VEGAS RAIDERS": "LV", "RAIDERS": "LV",
+        "LOS ANGELES CHARGERS": "LAC", "CHARGERS": "LAC",
+        "LOS ANGELES RAMS": "LAR", "RAMS": "LAR",
+        "MIAMI DOLPHINS": "MIA", "DOLPHINS": "MIA",
+        "MINNESOTA VIKINGS": "MIN", "VIKINGS": "MIN",
+        "NEW ENGLAND PATRIOTS": "NE", "PATRIOTS": "NE",
+        "NEW ORLEANS SAINTS": "NO", "SAINTS": "NO",
+        "NEW YORK GIANTS": "NYG", "GIANTS": "NYG",
+        "NEW YORK JETS": "NYJ", "JETS": "NYJ",
+        "PHILADELPHIA EAGLES": "PHI", "EAGLES": "PHI",
+        "PITTSBURGH STEELERS": "PIT", "STEELERS": "PIT",
+        "SAN FRANCISCO 49ERS": "SF", "49ERS": "SF", "NINERS": "SF",
+        "SEATTLE SEAHAWKS": "SEA", "SEAHAWKS": "SEA",
+        "TAMPA BAY BUCCANEERS": "TB", "BUCCANEERS": "TB", "BUCS": "TB",
+        "TENNESSEE TITANS": "TEN", "TITANS": "TEN",
+        "WASHINGTON COMMANDERS": "WAS", "COMMANDERS": "WAS",
+        "WASHINGTON FOOTBALL TEAM": "WAS", "WASHINGTON REDSKINS": "WAS",
     ]
 
     // Ranking sites sometimes use nicknames where Sleeper has the legal name.
@@ -22,7 +57,10 @@ enum NameMatching {
     private static let nameSuffixes: Set<String> = ["jr", "sr", "ii", "iii", "iv", "v"]
 
     static func normTeam(_ team: String?) -> String {
-        let t = (team ?? "").uppercased()
+        let t = (team ?? "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .uppercased()
+            .replacingOccurrences(of: ".", with: "")
         return teamAliases[t] ?? t
     }
 
@@ -94,35 +132,57 @@ enum NameMatching {
 struct PickResolver {
     private let bySleeperId: [String: RankedPlayer]
     private let byNameKey: [String: RankedPlayer]
+    private let byDstTeam: [String: RankedPlayer]
     private let byYahooInitialKey: [String: RankedPlayer]
     private let byYahooInitialSuffixKey: [String: RankedPlayer]
+    private let byYahooInitialNoTeamKey: [String: RankedPlayer]
+    private let byYahooInitialNoTeamSuffixKey: [String: RankedPlayer]
 
     init(players: [RankedPlayer]) {
         var byId: [String: RankedPlayer] = [:]
         var byName: [String: RankedPlayer] = [:]
+        var byTeam: [String: RankedPlayer] = [:]
         var byYahooInitial: [String: [RankedPlayer]] = [:]
         var byYahooInitialSuffix: [String: [RankedPlayer]] = [:]
+        var byYahooInitialNoTeam: [String: [RankedPlayer]] = [:]
+        var byYahooInitialNoTeamSuffix: [String: [RankedPlayer]] = [:]
         for p in players {
             if let sid = p.sleeperId, byId[sid] == nil { byId[sid] = p }
             let key = "\(p.pos.rawValue):\(NameMatching.normalizeName(p.name))"
             if byName[key] == nil { byName[key] = p }
+            if p.pos == .dst {
+                if byTeam[NameMatching.normTeam(p.team)] == nil {
+                    byTeam[NameMatching.normTeam(p.team)] = p
+                }
+                if byTeam[NameMatching.normTeam(p.name)] == nil {
+                    byTeam[NameMatching.normTeam(p.name)] = p
+                }
+            }
             let nameParts = NameMatching.normalizeName(p.name).split(separator: " ")
             if let first = nameParts.first, let last = nameParts.last, nameParts.count >= 2 {
                 let initialKey = "\(p.pos.rawValue):\(NameMatching.normTeam(p.team)):\(first.prefix(1)):\(last)"
+                let noTeamKey = "\(p.pos.rawValue):\(first.prefix(1)):\(last)"
                 if let suffix = NameMatching.suffix(p.name) {
                     byYahooInitialSuffix["\(initialKey):\(suffix)", default: []].append(p)
+                    byYahooInitialNoTeamSuffix["\(noTeamKey):\(suffix)", default: []].append(p)
                 } else {
                     byYahooInitial[initialKey, default: []].append(p)
+                    byYahooInitialNoTeam[noTeamKey, default: []].append(p)
                 }
             }
         }
         bySleeperId = byId
         byNameKey = byName
+        byDstTeam = byTeam
         // Yahoo's compact pick cards use names such as "O. Hampton". Only
         // keep an initial+surname key when position and NFL team make it
         // unambiguous, otherwise fall through to an unranked stub.
         byYahooInitialKey = byYahooInitial.compactMapValues { $0.count == 1 ? $0[0] : nil }
         byYahooInitialSuffixKey = byYahooInitialSuffix.compactMapValues { $0.count == 1 ? $0[0] : nil }
+        // Team-less fallback is deliberately used only when unique by
+        // position, first initial, and surname; Yahoo sometimes omits NFL team.
+        byYahooInitialNoTeamKey = byYahooInitialNoTeam.compactMapValues { $0.count == 1 ? $0[0] : nil }
+        byYahooInitialNoTeamSuffixKey = byYahooInitialNoTeamSuffix.compactMapValues { $0.count == 1 ? $0[0] : nil }
     }
 
     func resolve(_ pick: SleeperPick) -> RankedPlayer {
@@ -131,6 +191,10 @@ struct PickResolver {
         let md = pick.metadata
         let pos = Position(sleeper: md?.position)
         let name = [md?.firstName, md?.lastName].compactMap { $0 }.joined(separator: " ")
+        if pos == .dst || pos == .unknown {
+            if let p = byDstTeam[NameMatching.normTeam(md?.team)] { return p }
+            if let p = byDstTeam[NameMatching.normTeam(name)] { return p }
+        }
         if let p = byNameKey["\(pos.rawValue):\(NameMatching.normalizeName(name))"] { return p }
         let parts = NameMatching.normalizeName(name).split(separator: " ")
         if let first = parts.first, let last = parts.last, parts.count >= 2 {
@@ -139,6 +203,11 @@ struct PickResolver {
                 return p
             }
             if let p = byYahooInitialKey[key] { return p }
+            let noTeamKey = "\(pos.rawValue):\(first.prefix(1)):\(last)"
+            if let suffix = NameMatching.suffix(name), let p = byYahooInitialNoTeamSuffixKey["\(noTeamKey):\(suffix)"] {
+                return p
+            }
+            if let p = byYahooInitialNoTeamKey[noTeamKey] { return p }
         }
 
         return RankedPlayer(

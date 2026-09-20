@@ -1,19 +1,23 @@
 # Fantasy Football Assistant
 
-A native macOS app that live-syncs with a [Sleeper](https://sleeper.com) fantasy football draft, tracks your roster in real time, and helps you decide who to take next — from an instant consensus-rankings panel to an AI advisor that reasons over a code-computed analytics engine (VORP, ADP value, survival odds, tier cliffs). When the draft ends, it grades every team on a leaderboard so you can see exactly where you found value and where you reached.
+A native macOS app that tracks a [Sleeper](https://sleeper.com) or Yahoo fantasy football draft, tracks your roster in real time, and helps you decide who to take next — from an instant consensus-rankings panel to an AI advisor that compares consensus rankings with your roster, league scoring, and flexible draft strategy. When the draft ends, it grades every team on a leaderboard so you can see exactly where you found value and where you reached.
 
-Sleeper is the source of truth throughout — the app never drafts for you. You pick in Sleeper; the app watches and advises.
+Your draft room is the source of truth — the app never drafts for you. Sleeper syncs through its API; Yahoo completed picks arrive through the local browser extension.
 
 ## Features
 
+- **Yahoo support** — configure scoring and lineup in setup, then connect the [local browser extension](browser-extension/yahoo/README.md)
 - **Live Sleeper sync** — polls your draft (mock or real) every few seconds; snake, linear, and 3rd-round-reversal draft types all supported
 - **Drafted / Available lists** — always-visible, auto-scrolling, filterable by search and position
 - **My Roster** — starters and bench filled in real draft order, with gap and bye-week warnings
-- **Best Available** — top 3 undrafted players at each starting position by FantasyPros consensus rank, with tier-cliff flags
+  - **Best Available** — a strategy-aware default pick using the current phase, roster needs, tiers, and consensus rank, followed by the top 3 undrafted players at each starting position
 - **AI Advisor** (optional, on-demand) — an OpenRouter-backed advisor that:
-  - Computes VORP, ADP-based steal/reach value, pick-survival probability, tier survival, and positional dropoffs entirely in code
-  - Applies a strict, ordered decision procedure (capacity → tier cliff → best VORP → tiebreakers) and cites which rule decided the pick
-  - Follows a round-phase draft strategy and plans paired picks at snake turns
+  - Uses a shortlist ordered by consensus rank, with leading options at each eligible position
+  - Compares tiers, roster needs, and ADP without synthetic projections or survival percentages
+  - Adapts to actual lineup and scoring; Yahoo setup defaults to half-PPR
+  - Enforces required-slot capacity and validates returned player IDs against the shortlist
+  - Distinguishes your upcoming pick from the following pick when planning close selections
+  - **Fast picks** (default on): compact answers, fastest supported reasoning, latency-prioritized routing, and a 12-second total request limit; an instant, clearly labeled rankings fallback stays available while waiting or after errors
   - Streams its response live (no more silent timeouts on slow models)
   - Ships with a **Chat** panel for open-ended follow-up questions, using the same live context
 - **Draft Leaderboard** — grades every team by draft value (steals vs. reaches) and by projected best-lineup points, with a breakdown of your best picks and biggest reaches
@@ -38,8 +42,8 @@ open FantasyFootballAssistant.xcodeproj
 
 Build and run the `FantasyFootballAssistant` scheme. On first launch:
 
-1. Load your FantasyPros rankings CSV (and optionally projection CSVs)
-2. Enter your Sleeper username to find a draft, or paste a draft URL
+1. Load your FantasyPros rankings CSV and declare its scoring format (half-PPR, full-PPR, or standard). Use an export matching your league; the app does not convert rankings. Optional projection CSVs are used for the leaderboard.
+2. Select Yahoo and enter your actual league scoring, lineup, and draft slot, or enter your Sleeper username/draft URL
 3. (Optional) add an OpenRouter API key and pick a model to enable the AI Advisor
 4. Connect and draft
 
@@ -58,7 +62,7 @@ FantasyFootballAssistant/
   App/            App entry point
   Models/         Core data types + Sleeper API DTOs
   Services/       Sleeper/OpenRouter clients, CSV parsing, draft math,
-                  analytics engine (VORP/ADP/survival), AI prompt building,
+                  rankings shortlist, AI prompt building,
                   the draft grader, and session persistence
   ViewModels/      DraftSession — live draft state (@Observable)
   Views/           SwiftUI views (draft board, roster, advisor, chat, leaderboard)

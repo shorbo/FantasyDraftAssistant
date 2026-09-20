@@ -406,6 +406,7 @@ struct AdvisorView: View {
     private static let tint = Color.orange
     @AppStorage("openRouterModel") private var model = AIAdvisor.defaultModel
     @AppStorage("openRouterReasoningEffort") private var reasoningEffort = ""
+    @AppStorage("advisorFastPicks") private var fastPicks = true
     @State private var showModelPicker = false
     @State private var modelSearch = ""
 
@@ -473,9 +474,15 @@ struct AdvisorView: View {
 
             Spacer()
 
+            Toggle("Fast picks", isOn: $fastPicks)
+                .toggleStyle(.checkbox)
+                .font(.caption)
+                .disabled(isLoading)
+                .help("Short AI answers, fastest supported reasoning, and a 12-second request limit. Chat keeps its own reasoning setting.")
+
             if currentModelInfo?.supportsReasoning == true {
                 Picker("", selection: $reasoningEffort) {
-                    Text("No reasoning").tag("")
+                    Text("Default reasoning").tag("")
                     Text("Low reasoning").tag("low")
                     Text("Medium reasoning").tag("medium")
                     Text("High reasoning").tag("high")
@@ -484,6 +491,7 @@ struct AdvisorView: View {
                 .font(.caption)
                 .labelsHidden()
                 .fixedSize()
+                .help("Reasoning for Chat and for recommendations when Fast picks is off.")
             }
         }
         .padding(.horizontal, 14)
@@ -543,12 +551,14 @@ struct AdvisorView: View {
     private var content: some View {
         switch session.adviceState {
         case .idle:
-            Text("On-demand AI advice. Code precomputes VORP, ADP value, survival odds, tier cliffs, and dropoffs; the model applies a strict decision procedure and cites the rule that decided the pick.")
+            Text("Compares your best available rankings with roster needs, tiers, and league scoring. Uses flexible draft strategy and keeps enough picks to fill your lineup.")
                 .font(.callout).foregroundStyle(.secondary)
             askButton("Ask AI")
+            rankingsFallback
 
         case .syncing:
-            loadingRow("Syncing latest picks from Sleeper…")
+            loadingRow(session.source == .yahoo ? "Checking latest Yahoo picks…" : "Syncing latest picks from Sleeper…")
+            rankingsFallback
 
         case .loading:
             // Raw JSON deltas aren't shown directly (would look like broken
@@ -557,18 +567,31 @@ struct AdvisorView: View {
             loadingRow(session.adviceStreamedChars > 0
                 ? "Thinking through the board… (\(session.adviceStreamedChars) chars received)"
                 : "Thinking through the board…")
+            rankingsFallback
 
         case .error(let message):
             Text(message).font(.callout).foregroundStyle(.red)
             askButton("Try again")
+            rankingsFallback
 
         case .ready(let forPick, let advice):
             if forPick != session.currentPick, !session.complete {
                 Text("⚠ From pick #\(forPick) — the board has moved since.")
                     .font(.caption).bold().foregroundStyle(.orange)
+                rankingsFallback
             }
             adviceCard(advice)
             askButton("Ask again")
+        }
+    }
+
+    @ViewBuilder
+    private var rankingsFallback: some View {
+        if let advice = session.instantRankingsAdvice {
+            Text("INSTANT RANKINGS FALLBACK · NOT AI")
+                .font(.caption2).bold().foregroundStyle(.secondary)
+            adviceCard(advice)
+            Divider()
         }
     }
 
@@ -584,7 +607,7 @@ struct AdvisorView: View {
             ForEach(advice.alternates, id: \.id) { candidateRow($0) }
         }
         // IF SNIPED
-        if let ifSniped = advice.ifSniped, !ifSniped.isEmpty {
+        if let ifSniped = advice.ifSnipedText(players: session.players) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("IF SNIPED").font(.caption2).bold().kerning(0.5).foregroundStyle(.secondary)
                 Text(ifSniped).font(.caption).foregroundStyle(.secondary)
@@ -605,12 +628,7 @@ struct AdvisorView: View {
                 Text("Player \(advice.pickId)").bold()
             }
             Spacer()
-            if let rule = advice.rule {
-                Text("Rule \(rule)")
-                    .font(.caption2).bold()
-                    .padding(.horizontal, 6).padding(.vertical, 2)
-                    .background(Self.tint.opacity(0.2), in: Capsule())
-            }
+
         }
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -678,7 +696,10 @@ struct RecommendationsView: View {
         SectionCard(tint: Self.tint) {
             VStack(alignment: .leading, spacing: 0) {
                 sectionHeader("BEST AVAILABLE", tint: Self.tint)
-                Text("Top 3 by consensus rank at each position")
+                if let recommendation = session.primaryRecommendation {
+                    recommendationRow(recommendation)
+                }
+                Text("Strategy-aware pick first; top 3 by consensus rank at each position")
                     .font(.caption).foregroundStyle(.secondary)
                     .padding(.horizontal, 14)
                     .padding(.top, 8)
@@ -726,5 +747,34 @@ struct RecommendationsView: View {
         .padding(8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.gray.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
+    }
+
+    private func recommendationRow(_ recommendation: Recommendation) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 8) {
+                Text("RECOMMENDED PICK")
+                    .font(.caption2).bold().foregroundStyle(Self.tint)
+                Spacer()
+                if recommendation.tierBreak {
+                    Text("TIER CLIFF").font(.caption2).bold().foregroundStyle(.orange)
+                }
+            }
+            HStack(spacing: 8) {
+                PositionBadge(player: recommendation.player)
+                Text(recommendation.player.name).bold()
+                Spacer()
+                Text("#\(recommendation.player.rank ?? 0)")
+                    .font(.caption).foregroundStyle(.secondary).monospacedDigit()
+            }
+            Text(recommendation.reason)
+                .font(.caption).foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(9)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Self.tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 7))
+        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(Self.tint.opacity(0.45)))
+        .padding(.horizontal, 14)
+        .padding(.top, 8)
     }
 }

@@ -77,6 +77,9 @@ final class NameMatchingTests: XCTestCase {
         XCTAssertEqual(NameMatching.normalizeName("Amon-Ra St. Brown"), "amonra st brown")
         XCTAssertEqual(NameMatching.normalizeName("Ja'Marr Chase"), "jamarr chase")
         XCTAssertEqual(NameMatching.normalizeName("Hollywood Brown"), "marquise brown")
+        XCTAssertEqual(NameMatching.normTeam("Houston Texans"), "HOU")
+        XCTAssertEqual(NameMatching.normTeam("Texans"), "HOU")
+        XCTAssertEqual(NameMatching.normTeam("HST"), "HOU")
     }
 
     func testMatchByNameAndDstByTeam() {
@@ -141,6 +144,48 @@ final class NameMatchingTests: XCTestCase {
             metadata: SleeperPickMetadata(firstName: "O.", lastName: "Hampton", position: "RB", team: "LAC")
         )
         XCTAssertEqual(resolver.resolve(pick).id, 1)
+    }
+
+    func testDstResolverReconcilesFullNameNicknameAndCode() {
+        let defense = RankedPlayer(
+            id: 99, rank: 99, tier: 8, name: "Houston Texans", team: "HOU", pos: .dst,
+            posRank: 4, bye: 6
+        )
+        let resolver = PickResolver(players: [defense])
+        let nickname = SleeperPick(
+            pickNo: 1, round: 1, draftSlot: 1, playerId: "yahoo:1", pickedBy: nil,
+            metadata: SleeperPickMetadata(firstName: "Texans", lastName: nil, position: "DST", team: "Texans")
+        )
+        let fullName = SleeperPick(
+            pickNo: 2, round: 1, draftSlot: 2, playerId: "yahoo:2", pickedBy: nil,
+            metadata: SleeperPickMetadata(firstName: "Houston", lastName: "Texans", position: "DEF", team: "HOU")
+        )
+        XCTAssertEqual(resolver.resolve(nickname).id, defense.id)
+        XCTAssertEqual(resolver.resolve(fullName).id, defense.id)
+    }
+
+    func testYahooInitialNameMatchesWhenTeamIsOmitted() {
+        let player = RankedPlayer(
+            id: 77, rank: 77, tier: 5, name: "David Montgomery", team: "DET", pos: .rb,
+            posRank: 22, bye: 8
+        )
+        let resolver = PickResolver(players: [player])
+        let pick = SleeperPick(
+            pickNo: 1, round: 1, draftSlot: 1, playerId: "yahoo:1", pickedBy: nil,
+            metadata: SleeperPickMetadata(firstName: "D.J.", lastName: "Montgomery", position: "RB", team: nil)
+        )
+        XCTAssertEqual(resolver.resolve(pick).id, player.id)
+    }
+
+    func testDstRankingMatchesDbWhenTeamUsesFullName() {
+        let rankings = RankedPlayer(
+            id: 99, rank: 99, tier: 8, name: "Houston Texans", team: "Houston Texans", pos: .dst,
+            posRank: 4, bye: 6
+        )
+        let db: [String: SleeperDbPlayer] = [
+            "HOU": SleeperDbPlayer(name: "Houston Texans", pos: .dst, team: "HOU", active: true)
+        ]
+        XCTAssertEqual(NameMatching.match([rankings], to: db).first?.sleeperId, "HOU")
     }
 
     func testPickResolverDistinguishesYahooSuffixFromPlainInitial() {
@@ -251,6 +296,81 @@ final class RecommenderTests: XCTestCase {
         ]
         let cliffs = Recommender.tierCliffIds(available)
         XCTAssertEqual(cliffs, [3, 4])
+    }
+
+    private func strategyPlayer(_ id: Int, _ rank: Int, _ pos: Position, tier: Int = 1, upside: Int? = nil) -> RankedPlayer {
+        RankedPlayer(id: id, rank: rank, tier: tier, name: "P\(id)", team: "DAL",
+                     pos: pos, posRank: pos == .qb || pos == .te ? 1 : id,
+                     bye: nil, adp: Double(rank), upsideRating: upside)
+    }
+
+    private func strategyConfig(rounds: Int = 15) -> DraftConfig {
+        DraftConfig(
+            draftId: "strategy", leagueId: nil, name: "Strategy", season: "2026", type: "snake",
+            reversalRound: 0, teams: 10, rounds: rounds,
+            slots: [
+                LineupSlot(key: "QB", label: "QB", positions: [.qb]),
+                LineupSlot(key: "RB", label: "RB", positions: [.rb]),
+                LineupSlot(key: "WR", label: "WR", positions: [.wr]),
+                LineupSlot(key: "TE", label: "TE", positions: [.te]),
+                LineupSlot(key: "FLEX", label: "FLEX", positions: [.rb, .wr, .te]),
+                LineupSlot(key: "K", label: "K", positions: [.k]),
+                LineupSlot(key: "DST", label: "DST", positions: [.dst]),
+            ], benchSize: 6, scoring: "half_ppr", userSlot: 1
+        )
+    }
+
+    func testPrimaryRecommendationAnchorsRBAndWRInRoundsOneToThree() {
+        let players = [strategyPlayer(1, 1, .qb), strategyPlayer(2, 5, .rb), strategyPlayer(3, 6, .wr)]
+        let recommendation = Recommender.primaryRecommendation(
+            available: players, myPlayers: [], picks: [], config: strategyConfig(), currentPick: 1
+        )
+        XCTAssertEqual(recommendation?.player.id, 2)
+        XCTAssertTrue(recommendation?.reason.contains("opening anchor phase") == true)
+    }
+
+    func testPrimaryRecommendationUsesEliteQBWhenMiddleRoundWRNeedIsAlreadyFilled() {
+        let cfg = strategyConfig()
+        let roster = [strategyPlayer(90, 90, .wr)]
+        let players = [
+            strategyPlayer(1, 25, .wr, tier: 2),
+            strategyPlayer(2, 30, .qb, tier: 2),
+            strategyPlayer(3, 31, .te, tier: 2),
+        ]
+        let recommendation = Recommender.primaryRecommendation(
+            available: players, myPlayers: roster, picks: [], config: cfg, currentPick: 31
+        )
+        XCTAssertEqual(recommendation?.player.id, 2)
+        XCTAssertTrue(recommendation?.reason.contains("middle phase") == true)
+    }
+
+    func testPrimaryRecommendationReturnsToRBInLateMiddleRounds() {
+        let players = [strategyPlayer(1, 20, .wr), strategyPlayer(2, 45, .rb, tier: 2)]
+        let recommendation = Recommender.primaryRecommendation(
+            available: players, myPlayers: [], picks: [], config: strategyConfig(), currentPick: 71
+        )
+        XCTAssertEqual(recommendation?.player.id, 2)
+        XCTAssertTrue(recommendation?.reason.contains("late-middle phase") == true)
+    }
+
+    func testPrimaryRecommendationUsesLateUpsideSignalForStashes() {
+        let players = [
+            strategyPlayer(1, 100, .wr, tier: 4, upside: 5),
+            strategyPlayer(2, 101, .rb, tier: 4, upside: 3),
+        ]
+        let recommendation = Recommender.primaryRecommendation(
+            available: players, myPlayers: [], picks: [], config: strategyConfig(), currentPick: 111
+        )
+        XCTAssertEqual(recommendation?.player.id, 1)
+        XCTAssertTrue(recommendation?.reason.contains("supplied upside") == true)
+    }
+
+    func testPrimaryRecommendationKeepsKickerAndDefenseForFinalRounds() {
+        let players = [strategyPlayer(1, 1, .k), strategyPlayer(2, 2, .dst), strategyPlayer(3, 3, .rb)]
+        let recommendation = Recommender.primaryRecommendation(
+            available: players, myPlayers: [], picks: [], config: strategyConfig(), currentPick: 141
+        )
+        XCTAssertTrue([1, 2].contains(recommendation?.player.id))
     }
 }
 
@@ -404,6 +524,74 @@ final class ProjectionsCSVTests: XCTestCase {
 }
 
 final class AIAdvisorTests: XCTestCase {
+    func testFastRequestDisablesReasoningAndPrefersLatency() throws {
+        let body = AIAdvisor.completionBody(model: "test", prompt: "Pick", maxTokens: 800,
+                                            reasoningEffort: "none", fastMode: true)
+        let data = try JSONSerialization.data(withJSONObject: body)
+        let wire = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual((wire["reasoning"] as? [String: Bool])?["enabled"], false)
+        XCTAssertEqual((wire["provider"] as? [String: String])?["sort"], "latency")
+        XCTAssertEqual(wire["max_tokens"] as? Int, 800)
+        let chat = AIAdvisor.completionBody(model: "test", prompt: "Chat", maxTokens: 2000,
+                                            reasoningEffort: "high", fastMode: false)
+        XCTAssertEqual((chat["reasoning"] as? [String: String])?["effort"], "high")
+        XCTAssertNil(chat["provider"])
+    }
+
+    func testFastReasoningRespectsMandatoryModelCapabilities() {
+        var info = OpenRouterAPI.ModelInfo(id: "test", name: nil, contextLength: nil, supportsReasoning: true)
+        XCTAssertEqual(info.fastReasoningEffort, "none")
+        info.reasoningIsMandatory = true
+        info.supportedReasoningEfforts = ["high", "medium", "low", "minimal"]
+        XCTAssertEqual(info.fastReasoningEffort, "minimal")
+        info.supportedReasoningEfforts = ["high"]
+        XCTAssertEqual(info.fastReasoningEffort, "high")
+    }
+
+    func testDeepSeekCatalogCapabilitiesDisableReasoningOnWire() throws {
+        // Actual catalog response: optional reasoning, but only high/xhigh
+        // are listed as enabled levels. Fast mode must not choose high.
+        let info = OpenRouterAPI.ModelInfo(
+            id: "deepseek/deepseek-v4-flash", name: nil, contextLength: nil,
+            supportsReasoning: true, supportedReasoningEfforts: ["xhigh", "high"], reasoningIsMandatory: false
+        )
+        let body = AIAdvisor.completionBody(model: info.id, prompt: "Pick", maxTokens: 800,
+                                            reasoningEffort: info.fastReasoningEffort, fastMode: true)
+        let data = try JSONSerialization.data(withJSONObject: body)
+        let wire = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let reasoning = try XCTUnwrap(wire["reasoning"] as? [String: Any])
+        XCTAssertEqual(reasoning["enabled"] as? Bool, false)
+        XCTAssertNil(reasoning["effort"])
+    }
+
+    func testReasoningOnlyStreamReportsTokenExhaustion() throws {
+        var stream = AIAdvisor.CompletionStream()
+        XCTAssertNil(try stream.append(#"data: {"choices":[{"delta":{"reasoning":"Thinking...","content":null}}]}"#))
+        _ = try stream.append(#"data: {"choices":[{"delta":{},"finish_reason":"length"}]}"#)
+        XCTAssertEqual(stream.reasoningCharacters, 11)
+        XCTAssertThrowsError(try stream.completedText()) { error in
+            XCTAssertTrue(error.localizedDescription.contains("token budget"))
+        }
+    }
+
+    func testEmptyStreamIsDifferentFromInvalidAdvice() throws {
+        var stream = AIAdvisor.CompletionStream()
+        _ = try stream.append(#"data: {"choices":[{"finish_reason":"stop"}]}"#)
+        XCTAssertThrowsError(try stream.completedText()) { error in
+            XCTAssertTrue(error.localizedDescription.contains("empty answer"))
+        }
+    }
+
+    func testStreamCollectsFinalAnswerAndIgnoresReasoning() throws {
+        var stream = AIAdvisor.CompletionStream()
+        _ = try stream.append(#"data: {"choices":[{"delta":{"reasoning":"Do not show"}}]}"#)
+        _ = try stream.append(#"data: {"choices":[{"delta":{"content":"{\"pickId\":24,"}}]}"#)
+        _ = try stream.append(#"data: {"choices":[{"delta":{"content":"\"why\":\"Best rank\",\"alternates\":[]}"},"finish_reason":"stop"}]}"#)
+        _ = try stream.append("data: [DONE]")
+        XCTAssertEqual(AIAdvisor.parse(try stream.completedText())?.pickId, 24)
+        XCTAssertFalse(stream.text.contains("Do not show"))
+    }
+
     // Streaming: OpenRouter withholds all bytes until generation finishes on
     // a non-streaming request, which can exceed any idle timeout on a slow
     // model even though it would have succeeded. SSE parsing is what avoids
@@ -451,6 +639,36 @@ final class AIAdvisorTests: XCTestCase {
     func testRejectsGarbage() {
         XCTAssertNil(AIAdvisor.parse("no json here"))
         XCTAssertNil(AIAdvisor.parse(#"{"pickId": 3, "alternates": []}"#)) // missing "why"
+        XCTAssertNil(AIAdvisor.parse(#"{"pickId": 3, "why": "   ", "alternates": []}"#))
+    }
+
+    func testNumericIfSnipedFromDeepSeekResponse() throws {
+        // Regression: the pick and alternates were valid, but a numeric fallback
+        // caused the synthesized String decoder to reject the entire response.
+        let text = #"{"pickId":24,"why":"McBride fills the empty TE slot at rank 24.","alternates":[{"id":28,"reason":"Top available QB."},{"id":29,"reason":"Fills WR2."}],"ifSniped":28}"#
+        let advice = try XCTUnwrap(AIAdvisor.parse(text))
+        let players = [
+            RankedPlayer(id: 24, rank: 24, name: "Trey McBride", team: "ARI", pos: .te),
+            RankedPlayer(id: 28, rank: 28, name: "Josh Allen", team: "BUF", pos: .qb),
+            RankedPlayer(id: 29, rank: 29, name: "Rashee Rice", team: "KC", pos: .wr),
+        ]
+        XCTAssertEqual(advice.pickId, 24)
+        XCTAssertNoThrow(try AIAdvisor.validate(advice, candidates: players))
+        XCTAssertEqual(advice.ifSnipedText(players: players), "Take Josh Allen if the primary pick is gone.")
+        let quoted = try XCTUnwrap(AIAdvisor.parse(text.replacingOccurrences(of: #""ifSniped":28"#, with: #""ifSniped":"28""#)))
+        XCTAssertEqual(quoted.ifSnipedText(players: players), advice.ifSnipedText(players: players))
+    }
+
+    func testOptionalFallbackCannotDiscardValidAdvice() throws {
+        for fallback in ["null", "{}", "[]", "true"] {
+            let advice = try XCTUnwrap(AIAdvisor.parse("{\"pickId\":24,\"why\":\"Best rank.\",\"alternates\":[],\"ifSniped\":\(fallback)}"))
+            XCTAssertEqual(advice.pickId, 24)
+            XCTAssertNil(advice.ifSnipedText(players: []))
+        }
+        let unknown = try XCTUnwrap(AIAdvisor.parse(#"{"pickId":24,"why":"Best rank.","alternates":[],"ifSniped":999}"#))
+        XCTAssertNil(unknown.ifSnipedText(players: []))
+        // Required recommendation fields remain strict.
+        XCTAssertNil(AIAdvisor.parse(#"{"pickId":{},"why":"Best rank.","alternates":[],"ifSniped":28}"#))
     }
 
     private func fourTeamConfig() -> DraftConfig {
@@ -465,28 +683,28 @@ final class AIAdvisorTests: XCTestCase {
         )
     }
 
-    func testPromptIncludesAnnotatedBoardAndDecisionProcedure() {
+    func testPromptUsesRankingsAndActualLineup() {
         let config = fourTeamConfig()
         let qb = RankedPlayer(id: 1, rank: 1, tier: 1, name: "Josh Allen", team: "BUF", pos: .qb, posRank: 1, bye: 7, adp: 3)
         let rb = RankedPlayer(id: 2, rank: 2, tier: 1, name: "Bijan Robinson", team: "ATL", pos: .rb, posRank: 1, bye: 5, adp: 2)
         let picks = [ResolvedPick(pickNumber: 1, slot: 1, player: rb, isMine: false)]
         let prompt = AIAdvisor.buildPrompt(
-            config: config, currentPick: 2, nextUserPick: 2, myPlayers: [],
-            available: [qb], picks: picks, teamNames: ["A", "Me", "C", "D"],
-            allPlayers: [qb, rb], projections: nil, projectionsAreReal: false
+            config: config, currentPick: 2, myPlayers: [],
+            available: [qb], picks: picks, teamNames: ["A", "Me", "C", "D"]
         )
         XCTAssertTrue(prompt.contains("ON THE CLOCK"))
         XCTAssertTrue(prompt.contains("id=1"))
-        XCTAssertTrue(prompt.contains("VORP"))
-        XCTAssertTrue(prompt.contains("DECISION PROCEDURE"))
-        XCTAssertTrue(prompt.contains("ROUND-PHASE STRATEGY"))
-        XCTAssertTrue(prompt.contains("SYNTHETIC")) // modeled-projection provenance flag
+        XCTAssertFalse(prompt.contains("VORP"))
+        XCTAssertTrue(prompt.contains("SHORTLIST"))
+        XCTAssertTrue(prompt.contains("DRAFT STRATEGY"))
+        XCTAssertFalse(prompt.contains("SYNTHETIC"))
+        XCTAssertFalse(prompt.contains("2-FLEX"))
         XCTAssertTrue(prompt.contains("4-team full-PPR snake draft"))
         // Regression: the model's training data can be stale on which team a
         // player is currently on, which breaks team-dependent reasoning like
         // handcuffs — the prompt must anchor it to the season and the fresh
         // `team` field rather than recalled knowledge.
-        XCTAssertTrue(prompt.contains("2026 NFL season"))
+        XCTAssertTrue(prompt.contains("NFL season 2026"))
         XCTAssertTrue(prompt.contains("handcuffs"))
         XCTAssertTrue(prompt.contains("training data may be stale"))
     }
@@ -499,9 +717,8 @@ final class AIAdvisorTests: XCTestCase {
             ChatMessage(role: .assistant, text: "You can wait one more round."),
         ]
         let prompt = AIAdvisor.buildChatPrompt(
-            config: config, currentPick: 1, nextUserPick: 5, myPlayers: [], available: [qb],
-            picks: [], teamNames: ["A", "Me", "C", "D"], allPlayers: [qb],
-            projections: nil, projectionsAreReal: false, history: history, question: "What about now?"
+            config: config, currentPick: 1, myPlayers: [], available: [qb],
+            picks: [], teamNames: ["A", "Me", "C", "D"], history: history, question: "What about now?"
         )
         XCTAssertTrue(prompt.contains("CONVERSATION SO FAR"))
         XCTAssertTrue(prompt.contains("Should I wait on QB?"))
@@ -580,5 +797,133 @@ final class DraftAnalyticsTests: XCTestCase {
             available: [], picks: [], allPlayers: [], projections: nil
         )
         XCTAssertEqual(analysis.emptyStartingSlots, 10)
+    }
+}
+
+final class RankingsAdvisorTests: XCTestCase {
+    private func config(slot: Int = 2) -> DraftConfig {
+        DraftMath.buildManualConfig(
+            name: "Yahoo test", teams: 4, rounds: 8, type: "snake", userSlot: slot,
+            slots: [
+                LineupSlot(key: "QB", label: "QB", positions: [.qb]),
+                LineupSlot(key: "RB", label: "RB", positions: [.rb]),
+                LineupSlot(key: "WR", label: "WR", positions: [.wr]),
+                LineupSlot(key: "FLEX", label: "FLEX", positions: [.rb, .wr, .te]),
+                LineupSlot(key: "K", label: "K", positions: [.k]),
+                LineupSlot(key: "DST", label: "DST", positions: [.dst]),
+            ], benchSize: 2
+        )
+    }
+
+    private func player(_ id: Int, _ pos: Position, tier: Int = 1) -> RankedPlayer {
+        RankedPlayer(id: id, rank: id, tier: tier, name: "Player \(id)", team: "BUF",
+                     pos: pos, posRank: id, bye: 7, adp: Double(id))
+    }
+
+    func testOnClockUsesFollowingSelectionAndDoesNotInventTurn() {
+        let plan = Recommender.draftPlan(available: [], myPlayers: [], picks: [], config: config(), currentPick: 2)
+        XCTAssertEqual(plan.selectionPick, 2)
+        XCTAssertEqual(plan.followingPick, 7)
+        XCTAssertEqual(plan.opponentPicksBetween, 4)
+        XCTAssertEqual(plan.remainingPicks, 8)
+        let atTurn = Recommender.draftPlan(available: [], myPlayers: [], picks: [], config: config(slot: 4), currentPick: 4)
+        XCTAssertEqual(atTurn.followingPick, 5)
+        XCTAssertEqual(atTurn.opponentPicksBetween, 0)
+    }
+
+    func testWaitingAndFinalSelectionTiming() {
+        let waiting = Recommender.draftPlan(available: [], myPlayers: [], picks: [], config: config(), currentPick: 1)
+        XCTAssertEqual(waiting.selectionPick, 2)
+        XCTAssertEqual(waiting.followingPick, 7)
+        let final = Recommender.draftPlan(available: [], myPlayers: [], picks: [], config: config(), currentPick: 31)
+        XCTAssertEqual(final.selectionPick, 31)
+        XCTAssertNil(final.followingPick)
+        XCTAssertNil(final.opponentPicksBetween)
+        XCTAssertEqual(final.remainingPicks, 1)
+        let done = Recommender.draftPlan(available: [player(1, .rb)], myPlayers: [], picks: [], config: config(), currentPick: 33)
+        XCTAssertNil(done.selectionPick)
+        XCTAssertTrue(done.candidates.isEmpty)
+    }
+
+    func testBoardSortsRanksExcludesDraftedAndKeepsPositionalOptions() {
+        let wrs = (1...20).map { player($0, .wr) }
+        let rb = player(30, .rb)
+        let picks = [ResolvedPick(pickNumber: 1, slot: 1, player: wrs[0], isMine: false)]
+        let board = Recommender.draftPlan(
+            available: [rb, player(31, .k), player(32, .dst)] + wrs.reversed(),
+            myPlayers: [wrs[1]], picks: picks, config: config(), currentPick: 2
+        ).candidates
+        XCTAssertEqual(board.first?.id, 3)
+        XCTAssertTrue(board.contains { $0.id == rb.id })
+        XCTAssertFalse(board.contains { [1, 2, 31, 32].contains($0.id) })
+    }
+
+    func testCapacityOnlyAllowsMissingStartersIncludingFlex() {
+        let roster = [player(1, .qb), player(2, .rb), player(3, .wr), player(4, .k), player(5, .dst)]
+        let plan = Recommender.draftPlan(
+            available: [player(6, .qb), player(7, .rb), player(8, .wr), player(9, .te), player(10, .k)],
+            myPlayers: roster, picks: [], config: config(), currentPick: 31
+        )
+        XCTAssertTrue(plan.mustFillStarter)
+        XCTAssertEqual(plan.emptySlots.map(\.key), ["FLEX"])
+        XCTAssertEqual(plan.candidates.map(\.id), [7, 8, 9])
+    }
+
+    func testCapacityOverridesEarlyKickerRestriction() {
+        var cfg = config()
+        cfg.rounds = 6 // Every selection is needed for a starter.
+        let plan = Recommender.draftPlan(available: [player(1, .k)], myPlayers: [], picks: [], config: cfg, currentPick: 2)
+        XCTAssertTrue(plan.mustFillStarter)
+        XCTAssertEqual(plan.candidates.map(\.id), [1])
+    }
+
+    func testFinalRoundsIncludeRequiredKickerAndDefense() {
+        let roster = [player(1, .qb), player(2, .rb), player(3, .wr), player(4, .rb)]
+        let plan = Recommender.draftPlan(
+            available: [player(5, .rb), player(6, .k), player(7, .dst)],
+            myPlayers: roster, picks: [], config: config(), currentPick: 26
+        )
+        XCTAssertEqual(plan.remainingPicks, 2)
+        XCTAssertEqual(plan.candidates.map(\.id), [6, 7])
+    }
+
+    func testYahooHalfPPRPromptAndScoringMismatch() {
+        var cfg = config()
+        XCTAssertEqual(cfg.scoring, "half_ppr")
+        cfg.rankingsScoring = "half_ppr"
+        let prompt = AIAdvisor.buildPrompt(config: cfg, currentPick: 2, myPlayers: [], available: [player(1, .rb)], picks: [], teamNames: [])
+        XCTAssertTrue(prompt.contains("4-team half-PPR snake"))
+        XCTAssertTrue(prompt.contains("0.5 points per reception"))
+        XCTAssertTrue(prompt.contains("following selection is #7"))
+        XCTAssertFalse(prompt.contains("Plan these two close selections"))
+        XCTAssertFalse(prompt.contains("VORP"))
+        XCTAssertFalse(prompt.contains("SYNTHETIC"))
+        XCTAssertFalse(prompt.contains("2-FLEX"))
+        XCTAssertFalse(prompt.contains("SCORING MISMATCH"))
+        cfg.rankingsScoring = "ppr"
+        let mismatch = AIAdvisor.buildChatPrompt(config: cfg, currentPick: 2, myPlayers: [], available: [player(1, .rb)], picks: [], teamNames: [], history: [], question: "Who next?")
+        XCTAssertTrue(mismatch.contains("SCORING MISMATCH"))
+        XCTAssertTrue(mismatch.contains("0.5 points per reception"))
+    }
+
+    func testMultipleQBStrategyUsesActualLineup() {
+        var cfg = config()
+        cfg.slots.append(LineupSlot(key: "SFLX", label: "SFLX", positions: [.qb, .rb, .wr, .te]))
+        let prompt = AIAdvisor.buildPrompt(config: cfg, currentPick: 2, myPlayers: [], available: [], picks: [], teamNames: [])
+        XCTAssertTrue(prompt.contains("multiple starting QBs"))
+        XCTAssertFalse(prompt.contains("In a single-QB lineup"))
+    }
+
+    func testValidatesEligibleUniquePicksAndSmallBoards() {
+        let board = [player(1, .rb), player(2, .wr), player(3, .qb)]
+        func advice(_ id: Int, _ alternates: [Int]) -> AIAdvice {
+            AIAdvice(pickId: id, rule: nil, why: "Roster fit", alternates: alternates.map { AICandidate(id: $0, reason: "Value") }, ifSniped: nil)
+        }
+        XCTAssertNoThrow(try AIAdvisor.validate(advice(1, [2, 3]), candidates: board))
+        XCTAssertThrowsError(try AIAdvisor.validate(advice(99, [2, 3]), candidates: board))
+        XCTAssertThrowsError(try AIAdvisor.validate(advice(1, [1, 2]), candidates: board))
+        XCTAssertThrowsError(try AIAdvisor.validate(advice(1, [2, 2]), candidates: board))
+        XCTAssertNoThrow(try AIAdvisor.validate(advice(1, []), candidates: [board[0]]))
+        XCTAssertNoThrow(try AIAdvisor.validate(advice(1, [2]), candidates: Array(board.prefix(2))))
     }
 }

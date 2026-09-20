@@ -24,8 +24,8 @@ enum Position: String, Codable, CaseIterable, Sendable {
     // Sleeper uses DEF for defenses and FB for fullbacks (which rankings
     // sites list as RB).
     init(sleeper raw: String?) {
-        switch raw {
-        case "DEF": self = .dst
+        switch raw?.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() {
+        case "DEF", "DST", "D/ST", "DEFENSE": self = .dst
         case "FB": self = .rb
         default: self = Position(rawValue: raw ?? "") ?? .unknown
         }
@@ -49,6 +49,9 @@ struct RankedPlayer: Codable, Identifiable, Hashable, Sendable {
     // rankings CSV as rank + (ECR-vs-ADP delta), since FantasyPros' overall
     // rank is its ECR. nil when the CSV has no ADP delta for this player.
     var adp: Double?
+    // Optional analyst signal parsed from FantasyPros' UPSIDE column (1–5).
+    // It is used only as a late-round tiebreaker; missing values are normal.
+    var upsideRating: Int? = nil
 }
 
 struct LineupSlot: Hashable, Sendable {
@@ -73,6 +76,8 @@ struct DraftConfig: Sendable {
     var benchSize: Int
     var scoring: String?
     var userSlot: Int?
+    // User-declared format of the CSV; the export itself has no scoring metadata.
+    var rankingsScoring: String? = nil
 
     var totalPicks: Int { teams * rounds }
 }

@@ -16,6 +16,7 @@ struct SetupView: View {
     // rankings
     @State private var players: [RankedPlayer]?
     @State private var fileName = ""
+    @State private var rankingsScoring = "half_ppr"
     @State private var fileError: String?
     @State private var showFileImporter = false
 
@@ -47,6 +48,7 @@ struct SetupView: View {
     @State private var yahooRounds = 15
     @State private var yahooSlot = 1
     @State private var yahooType = "snake"
+    @State private var yahooScoring = "half_ppr"
     @State private var yahooTeamNames = ""
     @State private var yahooQB = 1
     @State private var yahooRB = 2
@@ -108,7 +110,7 @@ struct SetupView: View {
             VStack(alignment: .leading, spacing: 18) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("🏈 Fantasy Football Assistant").font(.title).bold()
-                    Text("Draft assistant · live-synced with your Sleeper draft")
+                    Text("Draft assistant · Sleeper and Yahoo Fantasy")
                         .foregroundStyle(.secondary)
                 }
 
@@ -200,6 +202,13 @@ struct SetupView: View {
             }
             Text("FantasyPros consensus export (\"Draft ALL Rankings\")")
                 .font(.callout).foregroundStyle(.secondary)
+            Picker("Rankings scoring", selection: $rankingsScoring) {
+                Text("Half-PPR").tag("half_ppr")
+                Text("Full-PPR").tag("ppr")
+                Text("Standard").tag("std")
+            }
+            Text("Choose the scoring format used when exporting this file. Changing this setting does not convert rankings.")
+                .font(.caption).foregroundStyle(.secondary)
             if players != nil, playersDb != nil {
                 if unmatched.isEmpty {
                     Text("✓ All ranked players matched to Sleeper").foregroundStyle(.green).font(.callout)
@@ -391,6 +400,15 @@ struct SetupView: View {
                 Text("Linear").tag("linear")
             }
             .pickerStyle(.segmented)
+            Picker("League scoring", selection: $yahooScoring) {
+                Text("Half-PPR").tag("half_ppr")
+                Text("Full-PPR").tag("ppr")
+                Text("Standard").tag("std")
+            }
+            if yahooScoring != rankingsScoring {
+                Text("Your rankings use a different scoring format. Load matching rankings for better advice.")
+                    .font(.callout).foregroundStyle(.orange)
+            }
             HStack {
                 labeledNumber("QB", value: $yahooQB, range: 0...4)
                 labeledNumber("RB", value: $yahooRB, range: 0...6)
@@ -614,6 +632,7 @@ struct SetupView: View {
         Task {
             defer { starting = false }
             var config = DraftMath.buildConfig(draft: selectedDraft, userId: user.userId)
+            config.rankingsScoring = rankingsScoring
             if config.userSlot == nil { config.userSlot = manualSlot }
             let teamNames = await buildTeamNames(draft: selectedDraft, teams: config.teams, user: user)
             onStart(DraftSession(
@@ -636,10 +655,11 @@ struct SetupView: View {
             index <= teamNames.count && !teamNames[index - 1].isEmpty ? teamNames[index - 1] : "Team \(index)"
         }
         let slots = manualSlots()
-        let config = DraftMath.buildManualConfig(
+        var config = DraftMath.buildManualConfig(
             name: yahooName, teams: yahooTeams, rounds: yahooRounds, type: yahooType,
-            userSlot: yahooSlot, slots: slots, benchSize: yahooBench
+            userSlot: yahooSlot, slots: slots, benchSize: yahooBench, scoring: yahooScoring
         )
+        config.rankingsScoring = rankingsScoring
         // Yahoo sessions cannot be resumed: the receiver token deliberately
         // changes for every app launch.
         SessionStore.clear()
@@ -676,7 +696,8 @@ struct SetupView: View {
                 guard let draft = try await SleeperAPI.draft(saved.draftId) else {
                     throw SleeperAPIError.notFound("That draft no longer exists on Sleeper.")
                 }
-                let config = DraftMath.buildConfig(draft: draft, userId: saved.userId)
+                var config = DraftMath.buildConfig(draft: draft, userId: saved.userId)
+                config.rankingsScoring = saved.rankingsScoring
                 onStart(DraftSession(
                     players: saved.players,
                     draft: draft,
